@@ -32,6 +32,7 @@ header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); ?>
 <div id='p-container'>
 	<div id='p-content'>
 		<form id='mformpop' name='mformpop' action='<?php echo $this->tpl_form_action(); ?>' method='post' <?php echo $this->tpl_form_type(); ?>>
+		<?php echo ndxz_csrf_field(); ?>
 		<?php echo $this->body; ?>
 		</form>
 	</div>

@@ -172,8 +172,7 @@ class New_statistics
 	
 			if ($rs) 
 			{
-				$c = trim(ucwords(preg_replace("/([A-Z\xC0-\xDF])/e",
-					"chr(ord('\\1')+32)", $rs['country_name'])));
+				$c = trim(ucwords(strtolower($rs['country_name'])));
 				
 				$clean['hit_country'] = $c;
 			}
@@ -201,14 +200,15 @@ class New_statistics
 		if ($url == '') return;
 		
 		$OBJ =& get_instance();
+		$url = $OBJ->db->escape($url);
 		
 		// check if it exists
-		$check = $OBJ->db->fetchRecord("SELECT stor_url FROM ".PX."stats_exhibits WHERE stor_url = '$url'");
+		$check = $OBJ->db->fetchRecord("SELECT stor_url FROM ".PX."stats_exhibits WHERE stor_url = $url");
 		
 		if ($check)
 		{
 			// update the count
-			$OBJ->db->updateRecord("UPDATE ".PX."stats_exhibits SET stor_count = stor_count + 1 WHERE stor_url = '$url'");
+			$OBJ->db->updateRecord("UPDATE ".PX."stats_exhibits SET stor_count = stor_count + 1 WHERE stor_url = $url");
 		}
 		else
 		{

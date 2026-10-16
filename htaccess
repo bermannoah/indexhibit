@@ -1,4 +1,8 @@
 RewriteEngine on 
+
+# Block script execution inside the user-uploaded files directory
+RewriteRule ^files/.*\.(php|phtml|php[0-9]|phar|pl|py|cgi|sh)$ - [F,L]
+
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^(.+) - [PT,L]

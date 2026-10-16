@@ -83,8 +83,8 @@ class Abstracts
 		// get the ide
 		$check = $OBJ->db->fetchRecord("SELECT ab_id 
 			FROM ".PX."abstracts 
-			WHERE ab_obj_id = '$ab_obj_id' 
-			AND ab_var = '$ab_var'");
+			WHERE ab_obj_id = " . $OBJ->db->escape($ab_obj_id) . " 
+			AND ab_var = " . $OBJ->db->escape($ab_var));
 		
 		if ($check)
 		{
@@ -105,12 +105,12 @@ class Abstracts
 				//if ($debug == true) { print_r($this->input); exit; }
 
 				// need to do this better...really...feeling tired right now...
-				$specify = ($ab_obj_id != null) ? "ab_obj_id = '$ab_obj_id' " : '';
-				$specify .= ($ab_id != null) ? "ab_id = '$ab_id'" : '';
+				$specify = ($ab_obj_id != null) ? "ab_obj_id = " . $OBJ->db->escape($ab_obj_id) . " " : '';
+				$specify .= ($ab_id != null) ? "ab_id = " . $OBJ->db->escape($ab_id) : '';
 
 				if ($specify == null) return;
 
-				$OBJ->db->updateArray(PX.'abstracts', $this->input, "$specify AND ab_var = '$ab_var'");
+				$OBJ->db->updateArray(PX.'abstracts', $this->input, "$specify AND ab_var = " . $OBJ->db->escape($ab_var));
 			}
 		}
 		else
@@ -158,12 +158,12 @@ class Abstracts
 		if ($debug == true) { print_r($this->input); exit; }
 		
 		// need to do this better...really...feeling tired right now...
-		$specify = ($ab_obj_id != null) ? "ab_obj_id = '$ab_obj_id' " : '';
-		$specify .= ($ab_id != null) ? "ab_id = '$ab_id'" : '';
+		$specify = ($ab_obj_id != null) ? "ab_obj_id = " . $OBJ->db->escape($ab_obj_id) . " " : '';
+		$specify .= ($ab_id != null) ? "ab_id = " . $OBJ->db->escape($ab_id) : '';
 		
 		if ($specify == null) return;
 
-		$OBJ->db->updateArray(PX.'abstracts', $this->input, "$specify AND ab_var = '$ab_var'");
+		$OBJ->db->updateArray(PX.'abstracts', $this->input, "$specify AND ab_var = " . $OBJ->db->escape($ab_var));
 		
 		// clean out the array
 		$this->abstract_clean();
@@ -176,12 +176,12 @@ class Abstracts
 		$OBJ =& get_instance();
 		
 		// need to do this better...really...feeling tired right now...
-		$specify = ($ab_obj_id != null) ? "ab_obj_id = '$ab_obj_id'" : '';
-		$specify .= ($ab_id != null) ? "ab_id = '$ab_id'" : '';
+		$specify = ($ab_obj_id != null) ? "ab_obj_id = " . $OBJ->db->escape($ab_obj_id) : '';
+		$specify .= ($ab_id != null) ? "ab_id = " . $OBJ->db->escape($ab_id) : '';
 		
 		if ($specify == null) return;
 
-		$OBJ->db->deleteArray(PX.'abstracts', "ab_var = '$ab_var' AND $specify AND ab_obj = '$ab_obj'");
+		$OBJ->db->deleteArray(PX.'abstracts', "ab_var = " . $OBJ->db->escape($ab_var) . " AND $specify AND ab_obj = " . $OBJ->db->escape($ab_obj));
 		
 		// clean out the array
 		$this->abstract_clean();
@@ -193,7 +193,7 @@ class Abstracts
 	{
 		$OBJ =& get_instance();
 
-		$OBJ->db->deleteArray(PX.'abstracts', "ab_obj_id = '$ab_obj_id' AND ab_obj = '$ab_obj'");
+		$OBJ->db->deleteArray(PX.'abstracts', "ab_obj_id = " . $OBJ->db->escape($ab_obj_id) . " AND ab_obj = " . $OBJ->db->escape($ab_obj));
 		
 		// clean out the array
 		$this->abstract_clean();

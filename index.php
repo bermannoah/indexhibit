@@ -177,9 +177,12 @@ else
    	}
    	else
    	{
-   		$template = (file_exists(DIRNAME . '/ndxzsite/' . $OBJ->vars->exhibit['obj_theme'] . '/' . $OBJ->vars->exhibit['template'])) ? $OBJ->vars->exhibit['template'] : 'index.php';
-        $filename = DIRNAME . '/ndxzsite/' . $OBJ->vars->exhibit['obj_theme'] . '/' . $template; 
-	}
+   		$theme = preg_replace('/[^a-z0-9_-]/i', '', (string) $OBJ->vars->exhibit['obj_theme']);
+	$template_name = preg_replace('/[^a-z0-9_.-]/i', '', (string) $OBJ->vars->exhibit['template']);
+	$filename = ndxz_safe_subpath(DIRNAME . '/ndxzsite/', $theme . '/' . $template_name);
+	if ($filename === false) $filename = ndxz_safe_subpath(DIRNAME . '/ndxzsite/', $theme . '/index.php');
+	if ($filename === false) $filename = ndxz_safe_subpath(DIRNAME . '/ndxzsite/', 'default/index.php');
+}
 
 	$fp = @fopen($filename, 'r');
 	$contents = fread($fp, filesize($filename));

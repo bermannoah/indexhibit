@@ -55,6 +55,7 @@
 
 	<!-- BODY BEGIN -->
 	<form name='mform' action='' method='post' <?php echo $this->tpl_form_type(); ?><?php echo $this->tpl_form_onsubmit(); ?>>
+	<?php echo ndxz_csrf_field(); ?>
 	<?php echo $this->body; ?>
 	</form>
 	

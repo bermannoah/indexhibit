@@ -100,10 +100,10 @@ class Page
 			if (isset($_POST['ndxz_sec_pwd_sbmt']) && ($_POST['ndxz_hid'] == ''))
 			{
 				// it matches the password
-				if (md5($_POST['ndxz_sec_pwd']) == md5($OBJ->vars->exhibit['sec_pwd']))
+				if (hash_equals(md5((string) $_POST['ndxz_sec_pwd']), md5((string) $OBJ->vars->exhibit['sec_pwd'])))
 				{
 					// set the cookie for one day
-					setcookie($page, md5($_POST['ndxz_sec_pwd']), time()+3600*24, '/');
+					setcookie($page, md5((string) $_POST['ndxz_sec_pwd']), ndxz_auth_cookie_options(time()+3600*24));
 					
 					// do we need to do a redirect here then?
 					header('location:' . BASEURL . $OBJ->vars->exhibit['url']);
@@ -123,7 +123,7 @@ class Page
 			elseif (isset($_COOKIE[$page]))
 			{	
 				// it doesn't match the password
-				if ($_COOKIE[$page] != md5($OBJ->vars->exhibit['sec_pwd']))
+				if (!hash_equals((string) $_COOKIE[$page], md5((string) $OBJ->vars->exhibit['sec_pwd'])))
 				{
 					$this->protected = true;
 					$OBJ->page->exhibit['exhibit'] = $this->sec_password();
@@ -152,10 +152,10 @@ class Page
 				if (isset($_POST['ndxz_pwd_sbmt']) && ($_POST['ndxz_hid'] == ''))
 				{
 					// it matches the password
-					if (md5($_POST['ndxz_pwd']) == md5($OBJ->vars->exhibit['pwd']))
+					if (hash_equals(md5((string) $_POST['ndxz_pwd']), md5((string) $OBJ->vars->exhibit['pwd'])))
 					{
 						// set the cookie for one day
-						setcookie($page, md5($_POST['ndxz_pwd']), time()+3600*24, '/');
+						setcookie($page, md5((string) $_POST['ndxz_pwd']), ndxz_auth_cookie_options(time()+3600*24));
 					
 						// do we need to do a redirect here then?
 						header('location:' . BASEURL . $OBJ->vars->exhibit['url']);
@@ -175,7 +175,7 @@ class Page
 				elseif (isset($_COOKIE[$page]))
 				{	
 					// it doesn't match the password
-					if ($_COOKIE[$page] != md5($OBJ->vars->exhibit['pwd']))
+					if (!hash_equals((string) $_COOKIE[$page], md5((string) $OBJ->vars->exhibit['pwd'])))
 					{
 						$this->protected = true;
 						$OBJ->page->exhibit['exhibit'] = $this->password();
@@ -306,29 +306,38 @@ class Page
 		// check for password protection
 		$this->password_protect();
 		
-		if (file_exists(DIRNAME . '/ndxzsite/' . $OBJ->vars->exhibit['obj_theme'] . '/format.' . $OBJ->vars->exhibit['format'] . '.php'))
+		$theme = preg_replace('/[^a-z0-9_-]/i', '', (string) $OBJ->vars->exhibit['obj_theme']);
+		$format = preg_replace('/[^a-z0-9_-]/i', '', (string) $OBJ->vars->exhibit['format']);
+		
+		$theme_format = ndxz_safe_subpath(DIRNAME . '/ndxzsite/', $theme . '/format.' . $format . '.php');
+		if ($theme_format !== false)
 		{
-			include_once DIRNAME . '/ndxzsite/' . $OBJ->vars->exhibit['obj_theme'] . '/format.' . $OBJ->vars->exhibit['format'] . '.php';
+			include_once $theme_format;
 				
-			$OBJ =& get_instance();
-			$OBJ->dyn_class('Exhibit');
-		}
-		elseif (file_exists(DIRNAME . '/ndxzsite/plugin/format.' . $OBJ->vars->exhibit['format'] . '.php'))
-		{
-			include_once DIRNAME . '/ndxzsite/plugin/format.' . $OBJ->vars->exhibit['format'] . '.php';
-
 			$OBJ =& get_instance();
 			$OBJ->dyn_class('Exhibit');
 		}
 		else
 		{
-			// thie default format
-			if (file_exists(DIRNAME . '/ndxzsite/plugin/format.visual_index.php'))
+			$plugin_format = ndxz_safe_subpath(DIRNAME . '/ndxzsite/plugin/', 'format.' . $format . '.php');
+			if ($plugin_format !== false)
 			{
-				include_once DIRNAME . '/ndxzsite/plugin/format.visual_index.php';
+				include_once $plugin_format;
 
 				$OBJ =& get_instance();
 				$OBJ->dyn_class('Exhibit');
+			}
+			else
+			{
+				// the default format
+				$default_format = ndxz_safe_subpath(DIRNAME . '/ndxzsite/plugin/', 'format.visual_index.php');
+				if ($default_format !== false)
+				{
+					include_once $default_format;
+
+					$OBJ =& get_instance();
+					$OBJ->dyn_class('Exhibit');
+				}
 			}
 		}
 	}
@@ -506,13 +515,13 @@ class Page
 			if (isset($_POST['ndxz_sec_pwd_sbmt']) && ($_POST['ndxz_hid'] == ''))
 			{
 				// it matches the password
-				if (md5($_POST['ndxz_sec_pwd']) == md5($OBJ->vars->exhibit['sec_pwd']))
+				if (hash_equals(md5((string) $_POST['ndxz_sec_pwd']), md5((string) $OBJ->vars->exhibit['sec_pwd'])))
 				{
 					// set the cookie for one day
 					//setcookie($page, md5($_POST['ndxz_pwd']), time()+3600*24, $OBJ->vars->exhibit['url']);
 					
 					// is this bad?
-					setcookie($page, md5($_POST['ndxz_sec_pwd']), time()+3600*24, '/');
+					setcookie($page, md5((string) $_POST['ndxz_sec_pwd']), ndxz_auth_cookie_options(time()+3600*24));
 					
 					// do we need to do a redirect here then?
 					header('location:' . BASEURL . ndxz_rewriter($OBJ->vars->exhibit['url']));
@@ -532,7 +541,7 @@ class Page
 			elseif (isset($_COOKIE[$page]))
 			{	
 				// it doesn't match the password
-				if ($_COOKIE[$page] != md5($OBJ->vars->exhibit['sec_pwd']))
+				if (!hash_equals((string) $_COOKIE[$page], md5((string) $OBJ->vars->exhibit['sec_pwd'])))
 				{
 					$this->protected = true;
 					$OBJ->page->exhibit['exhibit'] = $this->sec_password();
@@ -559,13 +568,13 @@ class Page
 			if (isset($_POST['ndxz_pwd_sbmt']) && ($_POST['ndxz_hid'] == ''))
 			{
 				// it matches the password
-				if (md5($_POST['ndxz_pwd']) == md5($OBJ->vars->exhibit['pwd']))
+				if (hash_equals(md5((string) $_POST['ndxz_pwd']), md5((string) $OBJ->vars->exhibit['pwd'])))
 				{
 					// set the cookie for one day
 					//setcookie($page, md5($_POST['ndxz_pwd']), time()+3600*24, $OBJ->vars->exhibit['url']);
 					
 					// is this bad?
-					setcookie($page, md5($_POST['ndxz_pwd']), time()+3600*24, '/');
+					setcookie($page, md5((string) $_POST['ndxz_pwd']), ndxz_auth_cookie_options(time()+3600*24));
 					
 					// do we need to do a redirect here then?
 					header('location:' . BASEURL . ndxz_rewriter($OBJ->vars->exhibit['url']));
@@ -583,7 +592,7 @@ class Page
 			elseif (isset($_COOKIE[$page]))
 			{	
 				// it doesn't match the password
-				if ($_COOKIE[$page] != md5($OBJ->vars->exhibit['pwd']))
+				if (!hash_equals((string) $_COOKIE[$page], md5((string) $OBJ->vars->exhibit['pwd'])))
 				{
 					$this->protected = true;
 					$OBJ->page->exhibit['exhibit'] = $this->password();
@@ -620,9 +629,8 @@ class Page
 	
 	public function submedia()
 	{
-		$OBJ =& get_instance();
-		
-		phpinfo();
+		// phpinfo() was previously exposed here; removed for security.
+		return '';
 	}
 	
 	

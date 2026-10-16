@@ -17,6 +17,8 @@ require_once '../ndxzsite/config/options.php';
 require_once 'defaults.php';
 require_once 'common.php';
 
+ndxz_session_start();
+
 // timer
 $default['timer'] = microtime_float();
 
@@ -44,6 +46,21 @@ $OBJ->hook->do_action_array('update_defaults');
 
 // are we logged in?
 $OBJ->access->checkLogin();
+
+// CSRF protection for all authenticated admin POST requests.
+// The login, password-reset and logout forms are handled by checkLogin()
+// and are intentionally exempt here.
+if (($_SERVER['REQUEST_METHOD'] === 'POST') && !ndxz_csrf_verify())
+{
+	if (!isset($_POST['submitLogin']) && !isset($_POST['retrievePassword']) && !isset($_POST['logout']))
+	{
+		http_response_code(403);
+		exit('Invalid or missing CSRF token');
+	}
+}
+
+// expose the token to the admin templates/scripts
+$OBJ->vars->csrf = ndxz_csrf_get();
 
 // get user preferences
 $OBJ->lang->setlang($OBJ->access->prefs['user_lang']);

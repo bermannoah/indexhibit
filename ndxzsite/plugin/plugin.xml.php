@@ -51,9 +51,9 @@ class xml
 		$this->output .= "<?xml version='1.0' encoding='utf-8' ?>\n";
 		$this->output .= "<rss version='2.0'>
 <channel>
-<title>" . $OBJ->vars->exhibit['obj_name'] . "</title>
+<title>" . htmlspecialchars($OBJ->vars->exhibit['obj_name'], ENT_QUOTES, 'UTF-8') . "</title>
 <link>" . BASEURL . "</link>\n
-<language>" . $OBJ->vars->exhibit['site_lang'] . "</language>\n
+<language>" . htmlspecialchars($OBJ->vars->exhibit['site_lang'], ENT_QUOTES, 'UTF-8') . "</language>\n
 <generator>Indexhibit</generator>\n";
 
 		$this->output .= $this->xml;

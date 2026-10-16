@@ -126,11 +126,11 @@ font-weight: bold; }
 		{
 			$OBJ =& get_instance();
 			
-			if ($_COOKIE['site_password'] == $OBJ->hook->options['site_password']['password'])
+			if (hash_equals((string) $_COOKIE['site_password'], (string) $OBJ->hook->options['site_password']['password']))
 			{
 				$this->has_access = true;
 				
-				setcookie('site_password_count', 0, time(), '/');
+				setcookie('site_password_count', '0', ndxz_auth_cookie_options(time()));
 			}
 		}
 	}
@@ -152,13 +152,13 @@ font-weight: bold; }
 				$password = $P->process('password', array('alphanum'));
 				$password = md5(sha1(md5(sha1($password))));
 				
-				if ($password == $OBJ->hook->options['site_password']['password'])
+				if (hash_equals((string) $password, (string) $OBJ->hook->options['site_password']['password']))
 				{
 					$this->has_access = true;
 					
 					// register the cookie
-					setcookie('site_password', $password, time()+3600*24*2, '/');
-					setcookie('site_password_count', 0, time(), '/');
+					setcookie('site_password', $password, ndxz_auth_cookie_options(time()+3600*24*2));
+					setcookie('site_password_count', '0', ndxz_auth_cookie_options(time()));
 				}
 				else
 				{	
@@ -175,7 +175,7 @@ font-weight: bold; }
 						$this->notification .= ' - you have ' . (5 - $attempts) . ' attempts left.';
 					}
 					
-					setcookie('site_password_count', $attempts, time()+3600*24*2, '/');
+					setcookie('site_password_count', $attempts, ndxz_auth_cookie_options(time()+3600*24*2));
 				}
 			}
 		}

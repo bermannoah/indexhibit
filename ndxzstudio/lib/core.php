@@ -270,8 +270,8 @@ class Core
 		{
 			foreach ($a as $b)
 			{
-				if (file_exists(DIRNAME . '/ndxzsite/plugin/' . $b['file'])) 
-					include_once(DIRNAME . '/ndxzsite/plugin/' . $b['file']);
+				$plugin_file = ndxz_safe_subpath(DIRNAME . '/ndxzsite/plugin/', $b['file']);
+				if ($plugin_file !== false) include_once($plugin_file);
 			
 				if (class_exists($b['function'])) 
 				{

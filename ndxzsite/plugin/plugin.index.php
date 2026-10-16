@@ -181,8 +181,9 @@ class Index
 		$class = ($this->li_class == '') ? 'exhibit_title' : $this->li_class;
 
 		// we build the link for site pages or iframed pages or external links
-		return ($this->exhibit['link'] == '') ? "<li id='exhibit_" . $this->exhibit['id'] . "' class='" . $class . "{$active}'><a href='" . $OBJ->baseurl . ndxz_rewriter($this->exhibit['url']) . "'>" . $this->exhibit['title'] . "</a>{$new}</li>\n" : 
-			$this->iframed_link($active, $this->exhibit['id'], $this->exhibit['title'], $this->exhibit['url'], $this->exhibit['link'], $this->exhibit['target'], $this->exhibit['iframe']);
+		$title = htmlspecialchars((string) $this->exhibit['title'], ENT_QUOTES, 'UTF-8');
+		return ($this->exhibit['link'] == '') ? "<li id='exhibit_" . $this->exhibit['id'] . "' class='" . $class . "{$active}'><a href='" . $OBJ->baseurl . ndxz_rewriter($this->exhibit['url']) . "'>" . $title . "</a>{$new}</li>\n" : 
+			$this->iframed_link($active, $this->exhibit['id'], $title, $this->exhibit['url'], $this->exhibit['link'], $this->exhibit['target'], $this->exhibit['iframe']);
 	}
 	
 	
@@ -202,6 +203,8 @@ class Index
 		}
 		//$target = ($target == 1) ? " target='_new'" : '';
 
+		$link = htmlspecialchars((string) $link, ENT_QUOTES, 'UTF-8');
+		$title = htmlspecialchars((string) $title, ENT_QUOTES, 'UTF-8');
 		return "<li id='exhibit_$id' class='exhibit_title exhibit_link$active'><a href='$link'{$target}>" . $title . "</a></li>\n";
 	}
 	
@@ -232,11 +235,11 @@ class Index
 
 			if ($this->section['status'] == 1)
 			{
-				$section_title = "<li id='section_title_" . $this->section['secid'] . "'><span class='section_title{$active}'><a href='" . $OBJ->baseurl . ndxz_rewriter($this->section['url']) . "' id='section_link_" . $this->section['secid'] . "'>" . $this->section['sec_desc'] . "</a></span>\n";
+				$section_title = "<li id='section_title_" . $this->section['secid'] . "'><span class='section_title{$active}'><a href='" . $OBJ->baseurl . ndxz_rewriter($this->section['url']) . "' id='section_link_" . $this->section['secid'] . "'>" . ndxz_esc($this->section['sec_desc']) . "</a></span>\n";
 			}
 			else
 			{
-				$section_title = "<li id='section_title_" . $this->section['secid'] . "'><span id='section_link_" . $this->section['secid'] . "' class='section_title{$active}'>" . $this->section['sec_desc'] . "</span>\n";
+				$section_title = "<li id='section_title_" . $this->section['secid'] . "'><span id='section_link_" . $this->section['secid'] . "' class='section_title{$active}'>" . ndxz_esc($this->section['sec_desc']) . "</span>\n";
 			}
 		}
 		
@@ -362,11 +365,11 @@ class Index
 
 			if ($this->section['status'] == 1)
 			{
-				$section_title = "<li><span id='section_title_" . $this->section['secid'] . "' class='section_title{$active}'><a href='" . $OBJ->baseurl . ndxz_rewriter($this->section['url']) . "' id='section_link_" . $this->section['secid'] . "'>" . $this->section['sec_desc'] . "</a></span>\n";
+				$section_title = "<li><span id='section_title_" . $this->section['secid'] . "' class='section_title{$active}'><a href='" . $OBJ->baseurl . ndxz_rewriter($this->section['url']) . "' id='section_link_" . $this->section['secid'] . "'>" . ndxz_esc($this->section['sec_desc']) . "</a></span>\n";
 			}
 			else
 			{
-				$section_title = "<li id='section_title_" . $this->section['secid'] . "'><span id='section_link_" . $this->section['secid'] . "' class='section_title{$active}'>" . $this->section['sec_desc'] . "</span>\n";
+				$section_title = "<li id='section_title_" . $this->section['secid'] . "'><span id='section_link_" . $this->section['secid'] . "' class='section_title{$active}'>" . ndxz_esc($this->section['sec_desc']) . "</span>\n";
 			}
 		}
 		
@@ -392,7 +395,7 @@ class Index
 				
 				$active_subsection_title = ($flag == true) ? " active_subsection_title" : '';
 
-				$s .= "<li><span id='subsection_title_" . $this->section['secid'] . "_$i' class='subsection_title{$active_subsection_title}'>" . str_replace('_', ' ', $key) . "</span>\n";
+				$s .= "<li><span id='subsection_title_" . $this->section['secid'] . "_$i' class='subsection_title{$active_subsection_title}'>" . ndxz_esc(str_replace('_', ' ', (string) $key)) . "</span>\n";
 				
 				$active_subsection = ($flag == true) ? ' active_subsection' : '';
 				$flag = false; // reset the flag for next time
@@ -488,11 +491,11 @@ class Index
 
 		if ($this->section['status'] == 1)
 		{
-			$section_title = "<li><span id='section_title_" . $this->section['secid'] . "' class='section_title{$active}'><a href='" . $OBJ->baseurl . ndxz_rewriter($this->section['url']) . "' id='section_link_" . $this->section['secid'] . "'>" . $this->section['sec_desc'] . "</a></span>\n";
+			$section_title = "<li><span id='section_title_" . $this->section['secid'] . "' class='section_title{$active}'><a href='" . $OBJ->baseurl . ndxz_rewriter($this->section['url']) . "' id='section_link_" . $this->section['secid'] . "'>" . ndxz_esc($this->section['sec_desc']) . "</a></span>\n";
 		}
 		else
 		{
-			$section_title = "<li id='section_title_" . $this->section['secid'] . "'><span id='section_link_" . $this->section['secid'] . "' class='section_title{$active}'>" . $this->section['sec_desc'] . "</span>\n";
+			$section_title = "<li id='section_title_" . $this->section['secid'] . "'><span id='section_link_" . $this->section['secid'] . "' class='section_title{$active}'>" . ndxz_esc($this->section['sec_desc']) . "</span>\n";
 		}
 		
 		if ($this->section['hidden'] != 1) $s .= $section_title;
@@ -536,7 +539,7 @@ class Index
 					if ($OBJ->vars->exhibit['id'] == $sub['id']) $flag = true;
 					$active_subsection_title = ($flag == true) ? " active_subsection_title" : '';
 
-					if ($sub['hidden'] != 1)  $s .= ($sub['status'] == 1) ? "<li><span id='subsection_title_" . $this->section['secid'] . "_$i' class='subsection_title{$active_subsection_title}'><a href='" . $OBJ->baseurl . ndxz_rewriter($sub['url']) . "'>" . $sub['title'] . "</a></span>\n" : "<li><span id='subsection_title_" . $this->section['secid'] . "_$i' class='subsection_title{$active_subsection_title}'>" . $sub['title'] . "</span>\n";
+					if ($sub['hidden'] != 1)  $s .= ($sub['status'] == 1) ? "<li><span id='subsection_title_" . $this->section['secid'] . "_$i' class='subsection_title{$active_subsection_title}'><a href='" . $OBJ->baseurl . ndxz_rewriter($sub['url']) . "'>" . ndxz_esc($sub['title']) . "</a></span>\n" : "<li><span id='subsection_title_" . $this->section['secid'] . "_$i' class='subsection_title{$active_subsection_title}'>" . ndxz_esc($sub['title']) . "</span>\n";
 
 					$active_subsection = ($flag == true) ? " active_subsection" : '';
 					$flag = false; // reset the flag for next time
@@ -593,11 +596,11 @@ class Index
 
 			if ($this->section['status'] == 1)
 			{
-				$section_title = "<li id='section_title_" . $this->section['secid'] . "'><span class='section_title{$active}'><a href='" . $OBJ->baseurl . ndxz_rewriter($this->section['url']) . "' id='section_link_" . $this->section['secid'] . "'>" . $this->section['sec_desc'] . "</a></span>\n";
+				$section_title = "<li id='section_title_" . $this->section['secid'] . "'><span class='section_title{$active}'><a href='" . $OBJ->baseurl . ndxz_rewriter($this->section['url']) . "' id='section_link_" . $this->section['secid'] . "'>" . ndxz_esc($this->section['sec_desc']) . "</a></span>\n";
 			}
 			else
 			{
-				$section_title = "<li id='section_title_" . $this->section['secid'] . "'><span id='section_link_" . $this->section['secid'] . "' class='section_title{$active}'>" . $this->section['sec_desc'] . "</span>\n";
+				$section_title = "<li id='section_title_" . $this->section['secid'] . "'><span id='section_link_" . $this->section['secid'] . "' class='section_title{$active}'>" . ndxz_esc($this->section['sec_desc']) . "</span>\n";
 			}
 		}
 		

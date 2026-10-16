@@ -56,9 +56,9 @@ class Rest
 		// we need another way to report
 		if ($rsp == '') return FALSE;
 		
-		$rsp_obj = unserialize($rsp);
+		$rsp_obj = unserialize($rsp, array('allowed_classes' => false));
 		
-		return ($rsp_obj['success'] == TRUE) ? TRUE : FALSE;
+		return (is_array($rsp_obj) && !empty($rsp_obj['success'])) ? TRUE : FALSE;
 	}
 	
 	/**

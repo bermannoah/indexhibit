@@ -132,9 +132,9 @@ class System extends Router
 			$b .= ($user['user_img'] == '') ? 
 				td("<div style='width: 35px; height: 35px; border: 1px solid #ccc;'><!-- --></div>", "width='5%' class='cell-doc'") : 
 				td("<div style='width: 35px; height: 35px; border: 1px solid #ccc;'><img src='" . BASEURL . "/files/$user[user_img]' width='35'</div>", "width='5%' class='cell-doc'");
-			$b .= td($user['user_surname'] . ', ' . $user['user_name'], "width='35%' class='cell-doc' style='vertical-align: top;'");
+			$b .= td(ndxz_esc($user['user_surname']) . ', ' . ndxz_esc($user['user_name']), "width='35%' class='cell-doc' style='vertical-align: top;'");
 			$b .= td('&nbsp;', "width='20%' class='cell-doc' style='vertical-align: top;'");
-			$b .= td($user['userid'], "width='20%' class='cell-doc' style='vertical-align: top;'");
+			$b .= td(ndxz_esc($user['userid']), "width='20%' class='cell-doc' style='vertical-align: top;'");
 			
 			if ($user['user_active'] == 1)
 			{
@@ -300,10 +300,8 @@ class System extends Router
 		
 		if (isset($_POST['upd_delusrimg']) && $_POST['delusrimg'])
 		{
-			if (file_exists(DIRNAME . '/files/' . $_POST['delusrimg']))
-			{
-				unlink(DIRNAME . '/files/' . $_POST['delusrimg']);
-			}
+			$del = ndxz_safe_path(DIRNAME . '/files/', $_POST['delusrimg']);
+			if ($del !== false) unlink($del);
 			
 			$clean['user_img'] = '';
 			$this->db->updateArray(PX.'users', $clean, "ID='" . $this->access->prefs['ID'] . "'");
@@ -2503,7 +2501,9 @@ var baseurl = '" . BASEURL . "';";
 			: DIRNAME . '/ndxzsite/plugin/' . $rs['pl_file'];
 		
 		// load the file
-		include_once($path);
+		$real = realpath($path);
+		$base = realpath(DIRNAME . '/ndxzsite/');
+		if ($real !== false && $base !== false && strpos($real, $base . '/') === 0) include_once($real);
 		
 		// this is our method
 		$f = $rs['pl_options_build'];
@@ -2591,7 +2591,9 @@ var baseurl = '" . BASEURL . "';";
 			: DIRNAME . '/ndxzsite/plugin/' . $rs['pl_file'];
 		
 		// load the file
-		include_once($path);
+		$real = realpath($path);
+		$base = realpath(DIRNAME . '/ndxzsite/');
+		if ($real !== false && $base !== false && strpos($real, $base . '/') === 0) include_once($real);
 		
 		// this is our method
 		$f = $rs['pl_options_build'];
@@ -2681,7 +2683,9 @@ var baseurl = '" . BASEURL . "';";
 			: DIRNAME . '/ndxzsite/plugin/' . $rs['pl_file'];
 		
 		// load the file
-		include_once($path);
+		$real = realpath($path);
+		$base = realpath(DIRNAME . '/ndxzsite/');
+		if ($real !== false && $base !== false && strpos($real, $base . '/') === 0) include_once($real);
 		
 		// this is our method
 		$f = $rs['pl_options_build'];
@@ -2767,7 +2771,9 @@ var baseurl = '" . BASEURL . "';";
 			: DIRNAME . '/ndxzsite/plugin/' . $rs['pl_file'];
 		
 		// load the file
-		include_once($path);
+		$real = realpath($path);
+		$base = realpath(DIRNAME . '/ndxzsite/');
+		if ($real !== false && $base !== false && strpos($real, $base . '/') === 0) include_once($real);
 		
 		// let's get the class
 		$c = explode(':', $rs['pl_function']);
@@ -2929,7 +2935,7 @@ var baseurl = '" . BASEURL . "';";
 		if ($this->access->is_admin() == false) { system_redirect("?a=$go[a]"); }
 		
 		// do some validating
-		$file = (string) $_GET['file'];
+		$file = preg_replace('/[^a-z0-9_-]/i', '', (string) $_GET['file']);
 		$the_file = 'plugin.' . $file . '.php';
 
 		$this->template->location_override = $this->lang->word('system');
@@ -2946,7 +2952,7 @@ var baseurl = '" . BASEURL . "';";
 		// better check to see if it's already in the database
 		$rs = $this->db->fetchRecord("SELECT pl_file  
 			FROM ".PX."plugins 
-			WHERE pl_file = '$the_file'");
+			WHERE pl_file = " . $this->db->escape($the_file));
 			
 		if ($rs) return;
 		
@@ -3003,7 +3009,8 @@ var baseurl = '" . BASEURL . "';";
 		if ($this->access->is_admin() == false) { system_redirect("?a=$go[a]"); }
 		
 		// do some validating
-		$file = (string) $_GET['file'];
+		$file = basename((string) $_GET['file']);
+		if (!preg_match('/^[a-z0-9_.-]+$/i', $file)) { system_redirect("?a=$go[a]&q=$go[q]"); exit; }
 		//$the_file = 'format.' . $file . '.php';
 		$the_file = $file;
 		
@@ -3023,14 +3030,15 @@ var baseurl = '" . BASEURL . "';";
 		// better check to see if it's already in the database
 		$rs = $this->db->fetchRecord("SELECT pl_file  
 			FROM ".PX."plugins 
-			WHERE pl_file = '$the_file'");
+			WHERE pl_file = " . $this->db->escape($the_file));
 			
 		$path = (file_exists(DIRNAME . '/ndxzsite/' . $OBJ->vars->settings['obj_theme'] . '/' . $the_file))
 			? DIRNAME . '/ndxzsite/' . $OBJ->vars->settings['obj_theme'] . '/'
 			: DIRNAME . '/ndxzsite/plugin/';
 		
 		// load the file
-		include_once($path . '/' . $the_file);
+		$include_file = ndxz_safe_subpath($path, $the_file);
+		if ($include_file !== false) include_once($include_file);
 		
 		$plugin = $this->hook->get_format_header_single($path, $the_file);
 		
@@ -3073,7 +3081,8 @@ var baseurl = '" . BASEURL . "';";
 		if ($this->access->is_admin() == false) { system_redirect("?a=$go[a]"); }
 		
 		// do some validating
-		$file = (string) $_GET['file'];
+		$file = basename((string) $_GET['file']);
+		if (!preg_match('/^[a-z0-9_.-]+$/i', $file)) { system_redirect("?a=$go[a]&q=$go[q]"); exit; }
 		$the_file = $file;
 		
 		//echo $the_file; exit;
@@ -3092,14 +3101,15 @@ var baseurl = '" . BASEURL . "';";
 		// better check to see if it's already in the database
 		$rs = $this->db->fetchRecord("SELECT pl_file  
 			FROM ".PX."plugins 
-			WHERE pl_file = '$the_file'");
+			WHERE pl_file = " . $this->db->escape($the_file));
 			
 		$path = (file_exists(DIRNAME . '/ndxzsite/' . $OBJ->vars->settings['obj_theme'] . '/' . $the_file))
 			? DIRNAME . '/ndxzsite/' . $OBJ->vars->settings['obj_theme'] . '/'
 			: DIRNAME . '/ndxzsite/plugin/';
 		
 		// load the file
-		include_once($path);
+		$include_file = ndxz_safe_subpath($path, $the_file);
+		if ($include_file !== false) include_once($include_file);
 		
 		$plugin = $this->hook->get_format_header_single($path, $the_file);
 		
@@ -3141,10 +3151,10 @@ var baseurl = '" . BASEURL . "';";
 		if ($this->access->is_admin() == false) { system_redirect("?a=$go[a]"); }
 		
 		// do some validating
-		$file = (string) $_GET['file'];
+		$file = preg_replace('/[^a-z0-9_-]/i', '', (string) $_GET['file']);
 		$the_file = 'plugin.' . $file . '.php';
 
-		$this->db->deleteArray(PX.'plugins', "pl_file = '$the_file'");
+		$this->db->deleteArray(PX.'plugins', "pl_file = " . $this->db->escape($the_file));
 
 		system_redirect("?a=$go[a]&q=$go[q]");
 		exit;
@@ -3428,18 +3438,21 @@ var ide = '$go[id]';";
 		
 		if (isset($_GET['x']))
 		{
-			$clean['media_file'] = (string) $_GET['x'];
-			$clean['media_mime'] = array_pop( explode('.', $clean['media_file']) );
+			$clean['media_file'] = basename((string) $_GET['x']);
+			$clean['media_mime'] = strtolower(pathinfo($clean['media_file'], PATHINFO_EXTENSION));
 			$clean['media_udate'] = getNow();
 			$clean['media_uploaded'] = $clean['media_udate'];
 			
 			// if it's an image or an swf we'll get the dimensions
 			if (in_array( $clean['media_mime'], array_merge($default['images'], $default['flash']) ))
 			{
-				$size = getimagesize(DIRNAME . '/files/' . $clean['media_file']);
-				
-				$clean['media_x'] = $size[0];
-				$clean['media_y'] = $size[1];
+				$src = ndxz_safe_path(DIRNAME . '/files/', $clean['media_file']);
+				if ($src !== false)
+				{
+					$size = getimagesize($src);
+					$clean['media_x'] = $size[0];
+					$clean['media_y'] = $size[1];
+				}
 			}
 	
 			$last = $this->db->insertArray(PX.'media', $clean);
@@ -4166,8 +4179,9 @@ var ide = '$go[id]';";
 		
 		if (isset($_POST['ins_all_files']))
 		{
+			$h_media_info = basename((string) $_POST['h_media_info']);
 			$check = $this->db->fetchArray("SELECT media_file FROM ".PX."media 
-				WHERE media_dir = '$_POST[h_media_info]' AND media_ref_id = '$go[id]'");
+				WHERE media_dir = " . $this->db->escape($h_media_info) . " AND media_ref_id = '$go[id]'");
 				
 			if ($check)
 			{
@@ -4182,9 +4196,9 @@ var ide = '$go[id]';";
 			$i = 1; $a = '';
 			
 			$body .= "<div style='height: 200px; overflow: auto;'>\n";
-			$theFiles = getTheFiles(DIRNAME . '/files/' . $_POST['h_media_info'] . '/', array(''));
+			$theFiles = getTheFiles(DIRNAME . '/files/' . $h_media_info . '/', array(''));
 			$RSZ = load_class('resize', true, 'lib');
-			$RSZ->folder_load_images($theFiles, $go['id'], 9999, 'image', $_POST['h_media_info']);
+			$RSZ->folder_load_images($theFiles, $go['id'], 9999, 'image', $h_media_info);
 			
 			$body .= p('Files autoloaded.');
 
@@ -4193,8 +4207,9 @@ var ide = '$go[id]';";
 		
 		if (isset($_POST['ins_files']))
 		{
+			$media_info = basename((string) $_POST['media_info']);
 			$check = $this->db->fetchArray("SELECT media_file FROM ".PX."media 
-				WHERE media_dir = '$_POST[media_info]' AND media_ref_id = '$go[id]'");
+				WHERE media_dir = " . $this->db->escape($media_info) . " AND media_ref_id = '$go[id]'");
 
 			if ($check)
 			{
@@ -4209,23 +4224,23 @@ var ide = '$go[id]';";
 			$i = 1; $a = '';
 
 			// we list the files here...
-			$body = "<p><label>Folder: " . $_POST['media_info'] . "</label></p>\n";
-			$body .= "<p>Click filename to load individually or <a href='#' onclick=\"file_add_all($go[id], 0, 0, '$_POST[media_info]'); return false;\">autoload all files to this exhibition.</a></p>\n";
+			$body = "<p><label>Folder: " . ndxz_esc($media_info) . "</label></p>\n";
+			$body .= "<p>Click filename to load individually or <a href='#' onclick=\"file_add_all($go[id], 0, 0, '" . htmlspecialchars($media_info, ENT_QUOTES, 'UTF-8') . "'); return false;\">autoload all files to this exhibition.</a></p>\n";
 			$body .= "<div style='height: 200px; overflow: auto;'>\n";
-			$theFiles = getTheFiles(DIRNAME . '/files/' . $_POST['media_info'] . '/', array(''));
+			$theFiles = getTheFiles(DIRNAME . '/files/' . $media_info . '/', array(''));
 
 			foreach ($theFiles as $f)
 			{
 				if (!in_array($f, $check))
 				{
-					$a .= li(href($f, '#', "onclick=\"file_add_single($go[id], $i, '$f', '$_POST[media_info]'); return false;\""), "id='file-$i' style='margin: 5px 0;'");
+					$a .= li(href($f, '#', "onclick=\"file_add_single($go[id], $i, '" . htmlspecialchars($f, ENT_QUOTES, 'UTF-8') . "', '" . htmlspecialchars($media_info, ENT_QUOTES, 'UTF-8') . "'); return false;\""), "id='file-$i' style='margin: 5px 0;'");
 					$i++;
 				}
 			}
 
 			$body .= ($a == '') ? p("None found") : "<ul id='thefiles'>" . $a . "</ul>";
 			//$body .= ($a == '') ? '' : p(input('ins_all_files', 'submit', null, 'Autoload all files'));
-			$body .= ($a == '') ? '' : input('h_media_info', 'hidden', null, $_POST['media_info']);
+			$body .= ($a == '') ? '' : input('h_media_info', 'hidden', null, $media_info);
 			$body .= "</div>\n";
 
 			// need to alert the image updater
@@ -4426,6 +4441,9 @@ var ide = '$go[id]';";
 
 		$CACHE =& load_class('cache', TRUE, 'lib');
 		$CACHE->delete_all_cache();
+
+		// also purge the Bunny.net pull zone if configured
+		ndxz_bunny_purge_all();
 
 		// send an update notice
 		$this->template->action_update = 'cache cleared';		
@@ -5022,7 +5040,15 @@ var ide = '$go[id]';";
 		
 		load_module_helper('files', 'system');
 		
-		$clean['name'] = $_POST['id'];
+		// Only allow editing of .css theme assets (never PHP or JS).
+		$name = (string) $_POST['id'];
+		if (strtolower(pathinfo(basename($name), PATHINFO_EXTENSION)) !== 'css')
+		{
+			header('Content-type: text/html; charset=utf-8');
+			echo 'invalid file';
+			exit;
+		}
+
 		$content = ($_POST['v'] == '') ? '' : utf8Urldecode($_POST['v']);
 		
 		// need to deal with \n
@@ -5031,25 +5057,30 @@ var ide = '$go[id]';";
 		$content = str_replace('&&&', '\n', $content);
 		
 		// output
-		$filename = $clean['name'];
+		$filename = ndxz_safe_subpath(DIRNAME . '/ndxzsite/', $name);
+		if ($filename === false || !is_file($filename) || !is_writable($filename))
+		{
+			header('Content-type: text/html; charset=utf-8');
+			echo 'invalid file';
+			exit;
+		}
 
-		if (!$handle = fopen(DIRNAME . '/ndxzsite/' . $filename, 'w+')) 
+		if (!$handle = fopen($filename, 'w+')) 
 		{
 			// error note
 		}
 	
-		// this check needs to be more specific with file name
-		if (is_dir(DIRNAME . '/ndxzsite/') && is_writable(DIRNAME . '/ndxzsite/')) 
-		{
-			if (fwrite($handle, trim($content)) === FALSE) 
-			{  
-				// error note
-			}
-		
-			fclose($handle);
+		if ($handle && fwrite($handle, trim($content)) === FALSE) 
+		{  
+			// error note
 		}
 	
+		if ($handle) fclose($handle);
+	
 		clearstatcache();
+
+		// purge the edited CSS asset from the CDN
+		ndxz_bunny_purge_url(BASEURL . '/ndxzsite/' . $name);
 		
 		header ('Content-type: text/html; charset=utf-8');
 		echo "<span class='notify'>" . $this->lang->word('updating') . "</span>";
@@ -5059,18 +5090,19 @@ var ide = '$go[id]';";
 	
 	public function page_jxbackup()
 	{
-		// validate this
-		$clean['name'] = (string) $_GET['edit'];
-		$file = DIRNAME . '/ndxzsite' . $clean['name'];
+		// validate this - only allow theme/asset files, never config or PHP
+		$name = (string) $_GET['edit'];
+		$ext = strtolower(pathinfo(basename($name), PATHINFO_EXTENSION));
+		if (!in_array($ext, array('css', 'js', 'html', 'htm', 'txt'), true)) { exit('invalid file'); }
+		$file = ndxz_safe_subpath(DIRNAME . '/ndxzsite/', $name);
 		
-		if (file_exists($file)) 
+		if ($file !== false && is_file($file)) 
 		{
-			$name = explode('/', $clean['name']);
-			$named = array_pop($name);
+			$named = basename($name);
 			
-			header("Content-Type: application/force-download\n");
-			header("Content-Disposition: attachment; filename=" . $named . ";");
-			@readfile("$file");
+			header("Content-Type: application/octet-stream");
+			header("Content-Disposition: attachment; filename=" . rawurlencode($named));
+			@readfile($file);
 		    exit;
 		}
 	}
@@ -5089,7 +5121,7 @@ var ide = '$go[id]';";
 		$tag = $this->db->fetchRecord("SELECT * FROM ".PX."tags WHERE tag_id='$id'");
 		
 		$s = "<div id='tag-edit' style='margin-bottom: 6px;'>\n";
-		$s .= "<input type='text' name='tag-editor' id='tag-editor' value=\"" . str_replace('_', ' ', $tag['tag_name']) . "\" style='width: 100px; display: inline; margin-bottom: 1px;' /> ";
+		$s .= "<input type='text' name='tag-editor' id='tag-editor' value=\"" . htmlspecialchars(str_replace('_', ' ', (string) $tag['tag_name']), ENT_QUOTES, 'UTF-8') . "\" style='width: 100px; display: inline; margin-bottom: 1px;' /> ";
 		$s .= "<input type='hidden' name='tag_group' id='tag_group' value=\"1\" /> ";
 		$s .= "<input type='button' onclick=\"editor_tag($tag[tag_id], $go[id], '$method'); return false;\" value='Update' style='display: inline; margin-bottom: 1px;' />\n";
 		$s .= "<input type='button' onclick=\"delete_tag($tag[tag_id], $go[id], '$method'); return false;\" value='x' style='display: inline; margin-bottom: 1px;' />\n";
@@ -5440,15 +5472,20 @@ var ide = '$go[id]';";
 			break;
 		case 'filesingle': 
 			global $default;
+			$folder = basename((string) $_POST['f']);
+			$file = basename((string) $_POST['v']);
+			$size = 0;
+			$mime = '';
 			// we need the check the image filesize before we try to load it
 			// if it's an image - quick check
-			if (file_exists(DIRNAME . '/files/' . $_POST['f'] . '/' . $_POST['v']))
+			$src = ndxz_safe_path(DIRNAME . '/files/' . $folder . '/', $file);
+			if ($src !== false)
 			{
-				$test = explode('.', strtolower($_POST['v']));
+				$test = explode('.', strtolower($file));
 				$mime = array_pop($test);
 
 				// this check is only for pictures...
-				$size = @filesize(DIRNAME . '/files/' . $_POST['f'] . '/' . $_POST['v']);
+				$size = @filesize($src);
 			}
 			
 			// only images need this check
@@ -5461,7 +5498,7 @@ var ide = '$go[id]';";
 			else
 			{
 				$RSZ = load_class('resize', true, 'lib');
-				$RSZ->single_load_image($_POST['v'], $clean['id'], 9999, 'image', $_POST['f']);
+				$RSZ->single_load_image($file, $clean['id'], 9999, 'image', $folder);
 				echo 'yes';
 				exit;
 				break;
@@ -5470,8 +5507,9 @@ var ide = '$go[id]';";
 		case 'filesall':
 			$RSZ = load_class('resize', true, 'lib');
 			load_helper('files');
-			$theFiles = getTheFiles(DIRNAME . '/files/' . $_POST['f'] . '/', array(''));
-			$RSZ->folder_load_images($theFiles, $clean['id'], 9999, 'image', $_POST['f']);
+			$folder = basename((string) $_POST['f']);
+			$theFiles = getTheFiles(DIRNAME . '/files/' . $folder . '/', array(''));
+			$RSZ->folder_load_images($theFiles, $clean['id'], 9999, 'image', $folder);
 			echo 'yes';
 			exit;
 			break;
@@ -5525,19 +5563,21 @@ var ide = '$go[id]';";
 		
 			$OBJ =& get_instance();
 			$out = '';
+			$asset_id = (int) $_POST['id'];
+			$asset_od = (int) $_POST['od'];
 			
 			// get the info and object
 			$asset = $OBJ->db->fetchRecord("SELECT * FROM ".PX."media 
-				INNER JOIN ".PX."objects_prefs ON obj_id = '$_POST[od]' 
-				WHERE media_id = '$_POST[id]'");
+				INNER JOIN ".PX."objects_prefs ON obj_id = '$asset_od' 
+				WHERE media_id = '$asset_id'");
 			
 			// update the order of the assets
 			$OBJ->db->updateRecord("UPDATE ".PX."set_assets SET set_order = set_order + 1 
 				WHERE set_obj_id = '10'");
 			
 			// insert into the collect table and oid	
-			$insert['set_obj_id'] = $_POST['od'];
-			$insert['set_media_id'] = $_POST['id'];
+			$insert['set_obj_id'] = $asset_od;
+			$insert['set_media_id'] = $asset_id;
 			$insert['set_title'] = $asset['media_title'];
 			$insert['set_caption'] = $asset['media_caption'];
 			$OBJ->db->insertArray(PX.'set_assets', $insert);
@@ -5557,19 +5597,22 @@ var ide = '$go[id]';";
 
 			$OBJ =& get_instance();
 			$out = '';
+			$asset_id = (int) $_POST['id'];
+			$asset_od = (int) $_POST['od'];
 
 			// get the info and object
 			$asset = $OBJ->db->fetchRecord("SELECT * FROM ".PX."media 
-				INNER JOIN ".PX."objects_prefs ON obj_id = '$_POST[od]' 
-				INNER JOIN ".PX."set_assets ON set_media_id = '$_POST[id]' 
-				WHERE media_id = '$_POST[id]'");
+				INNER JOIN ".PX."objects_prefs ON obj_id = '$asset_od' 
+				INNER JOIN ".PX."set_assets ON set_media_id = '$asset_id' 
+				WHERE media_id = '$asset_id'");
 
 			// insert into the collect table and oid
-			$OBJ->db->deleteArray(PX.'set_assets', "set_media_id = '$_POST[id]'");
+			$OBJ->db->deleteArray(PX.'set_assets', "set_media_id = '$asset_id'");
 			
 			// update the order of the assets
+			$set_order = (int) $asset['set_order'];
 			$OBJ->db->updateRecord("UPDATE ".PX."set_assets SET set_order = set_order - 1 
-				WHERE set_order > '$asset[set_order]'");
+				WHERE set_order > '$set_order'");
 
 			$out .= "<div id='pic$asset[media_id]' style='float: left; width: 95px; height: 115px;'>\n";
 			$out .= "<div style='width: 75px; height: 75px;'>\n";
@@ -5999,7 +6042,7 @@ var ide = '$go[id]';";
 			$this->db->updateArray(PX.'objects', $clean, "id='$clean[id]'");
 			
 			header ('Content-type: text/html; charset=utf-8');
-			echo $clean['title'];
+			echo htmlspecialchars((string) $clean['title'], ENT_QUOTES, 'UTF-8');
 			exit;
 			break;
 		case 'resize':
@@ -6166,10 +6209,12 @@ var ide = '$go[id]';";
 		$this->tag->method = $_POST['method'];
 		
 		// get tags
+		$post_id = (int) $_POST['id'];
+		
 		if ($this->tag->method == 'exh')
 		{
 			$rs = $this->db->fetchRecord("SELECT id FROM ".PX."objects
-				WHERE id='$_POST[id]'");
+				WHERE id='$post_id'");
 
 			$this->tag->id = $rs['id'];
 			$this->tag->method = 'exh';
@@ -6177,7 +6222,7 @@ var ide = '$go[id]';";
 		else
 		{
 			$rs = $this->db->fetchRecord("SELECT media_id FROM ".PX."media 
-				WHERE media_id='$_POST[id]'");
+				WHERE media_id='$post_id'");
 
 			$this->tag->id = $rs['media_id'];
 			$this->tag->method = 'img';
@@ -6232,7 +6277,7 @@ var ide = '$go[id]';";
 		$img = ($rs['user_img'] == '') ? td("<div style='width: 45px; float: left;'><div style='width: 35px; height: 35px; border: 1px solid #ccc; border: 1px solid #ccc;'>&nbsp;</div></div>") : 
 			td("<div style='width: 45px; float: left;'><div style='width: 35px; height: 35px; border: 1px solid #ccc;'><img src='" . BASEURL . "/files/$rs[user_img]' width='35' /></div></div>");
 		
-		$b .= "<div class='col' style='padding-bottom: 12px;'>$img <h3>$rs[user_name] $rs[user_surname] <br />$pre_span</h3></div>\n";
+		$b .= "<div class='col' style='padding-bottom: 12px;'>$img <h3>" . ndxz_esc($rs['user_name']) . ' ' . ndxz_esc($rs['user_surname']) . " <br />$pre_span</h3></div>\n";
 		$b .= "<div class='cl'><!-- --></div>\n";
 		$b .= "</div>\n";
 		
@@ -6313,7 +6358,7 @@ var ide = '$go[id]';";
 		//$title = ($rs['user_title'] == '') ? '' : ', ' . $rs['user_title'];
 		$pre_span = span($this->lang->word('delete'), "class='bg-red wht-text pad3'");
 		
-		$b .= "<div class='col' style='padding-bottom: 12px;'><h3>$pre_span &nbsp;$rs[user_name] $rs[user_surname]</h3></div>\n";
+		$b .= "<div class='col' style='padding-bottom: 12px;'><h3>$pre_span &nbsp;" . ndxz_esc($rs['user_name']) . ' ' . ndxz_esc($rs['user_surname']) . "</h3></div>\n";
 		$b .= "<div class='cl'><!-- --></div>\n";
 		$b .= "</div>\n";
 		
@@ -6345,21 +6390,16 @@ var ide = '$go[id]';";
 	
 	public function createRandomPassword()
 	{
-		$chars = "abcdefghijkmnopqrstuvwxyz023456789";
-		
-	    srand((double)microtime()*1000000);
-	    $i = 0;
-	    $pass = '' ;
+		$chars = 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ023456789';
+		$pass = '';
+		$max = strlen($chars) - 1;
 
-	    while ($i <= 7) 
+		for ($i = 0; $i < 12; $i++)
 		{
-	        $num = rand() % 33;
-	        $tmp = substr($chars, $num, 1);
-	        $pass = $pass . $tmp;
-	        $i++;
-	    }
+			$pass .= $chars[random_int(0, $max)];
+		}
 
-	    return $pass;
+		return $pass;
 	}
 	
 
@@ -6371,7 +6411,9 @@ var ide = '$go[id]';";
 
 		// make password
 		$temp['password'] = $this->createRandomPassword();
-		$clean['password'] = md5($temp['password']);
+		$clean['password'] = ndxz_password_hash($temp['password']);
+		$clean['user_hash'] = '';
+		$this->access->db_ensure_password_column_length();
 
 		// get user info
 		$rs = $this->db->fetchRecord("SELECT * FROM ".PX."users WHERE ID='$id'");
@@ -6401,7 +6443,6 @@ var ide = '$go[id]';";
 		if($rs) 
 		{ 
 		   	echo 'Message was sent. '; 
-			echo "Temp password is '$temp[password]'.";
 		} 
 		else 
 		{ 
@@ -6545,8 +6586,12 @@ var ide = '$go[id]';";
 		// need to update the password too
 		if (($tmp['password'] != '') && ($tmp['password'] == $tmp['cpassword']))
 		{
-			$clean['password'] = md5($tmp['password']);
-			setcookie('ndxz_access', $clean['password'], time()+3600*24*2, '/');
+			$this->access->db_ensure_password_column_length();
+			$clean['password'] = ndxz_password_hash($tmp['password']);
+			$token = ndxz_login_token_new();
+			$clean['user_hash'] = ndxz_login_token_hash($token);
+			setcookie('ndxz_access', $token, ndxz_auth_cookie_options(time()+3600*24*2));
+			setcookie('ndxz_hash', $clean['user_hash'], ndxz_auth_cookie_options(time()+3600*24*2));
 			$redirect = true;
 		}
 
@@ -6707,21 +6752,23 @@ var ide = '$go[id]';";
 		
 		// figure out what we're dealing with - format?
 		// validate get
-		$type = explode('.', (string) $_GET['edit']);
-		$format = array_pop($type);
+		$name = (string) $_GET['edit'];
+		$format = strtolower(pathinfo(basename($name), PATHINFO_EXTENSION));
 
-		if ($format != 'css') { system_redirect("?a=$go[a]&q=assets"); }
+		if ($format != 'css') { system_redirect("?a=$go[a]&q=assets"); exit; }
 		
-		// get the stuff
-		$template = (file_exists(DIRNAME . '/ndxzsite' . $_GET['edit'])) ? $_GET['edit'] : false;
+		// get the stuff (only .css files inside the theme/site directory)
+		$template = ndxz_safe_subpath(DIRNAME . '/ndxzsite/', $name);
 		
-		if ($template == false) { echo 'Woops!'; exit; }
+		if ($template == false || !is_file($template)) { echo 'Woops!'; exit; }
+		
+		$display_name = htmlspecialchars(basename($name), ENT_QUOTES, 'UTF-8');
 		
 		// need to restrict which folders we can access
 		// disallow php & js editing
-		if (($format == 'css') && (is_writable(DIRNAME . '/ndxzsite' . $_GET['edit'])))
+		if (($format == 'css') && (is_writable($template)))
 		{
-			$filename = DIRNAME . '/ndxzsite' . $template;
+			$filename = $template;
 			$fp = @fopen($filename, 'r');
 			$contents = fread($fp, filesize($filename));
 			fclose($fp);
@@ -6733,12 +6780,12 @@ var ide = '$go[id]';";
 			$b .= "<div class='c2' style='margin-bottom: 18px;'>\n";
 		
 			$b .= "<div class='col'>\n";
-			$b .= "<h3>" . span($format, "class='sec-title' style='text-transform: uppercase;'") . " $_GET[edit]</h3>\n";
+			$b .= "<h3>" . span($format, "class='sec-title' style='text-transform: uppercase;'") . " $display_name</h3>\n";
 			$b .= "</div>\n";
 		
 			$b .= "<div class='col' style='text-align: right;'>\n";
 
-			$b .= "<input name='save' type='image' src='asset/img/save.gif' title='".$this->lang->word('save')."'  class='btn btn-off' onmouseover=\"this.className='btn btn-over'\" onmouseout=\"this.className='btn btn-off'\" style='margin-bottom:0;' onclick=\"updateCode('$_GET[edit]'); return false;\" />\n";
+			$b .= "<input name='save' type='image' src='asset/img/save.gif' title='".$this->lang->word('save')."'  class='btn btn-off' onmouseover=\"this.className='btn btn-over'\" onmouseout=\"this.className='btn btn-off'\" style='margin-bottom:0;' onclick=\"updateCode('" . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . "'); return false;\" />\n";
 
 			$b .= "</div>\n";
 		
@@ -6756,7 +6803,7 @@ var ide = '$go[id]';";
 		else
 		{
 			// we'll just show the code...
-			$filename = DIRNAME . '/ndxzsite' . $template;
+			$filename = $template;
 			$fp = @fopen($filename, 'r');
 			$contents = fread($fp, filesize($filename));
 			fclose($fp);
@@ -6768,7 +6815,7 @@ var ide = '$go[id]';";
 			$b .= "<div class='c2' style='margin-bottom: 18px;'>\n";
 
 			$b .= "<div class='col'>\n";
-			$b .= "<h3>" . span($format, "class='sec-title' style='text-transform: uppercase;'") . " $_GET[edit]</h3>\n";
+			$b .= "<h3>" . span($format, "class='sec-title' style='text-transform: uppercase;'") . " $display_name</h3>\n";
 			$b .= "</div>\n";
 
 			$b .= "<div class='col' style='text-align: right;'>\n";

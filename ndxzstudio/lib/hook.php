@@ -235,8 +235,8 @@ class Hook
 					/// need to fix this up  
 					$accept_args = 1;
 					
-					if (file_exists(DIRNAME . '/ndxzsite/plugin/' . $function['file'])) 
-						include_once(DIRNAME . '/ndxzsite/plugin/' . $function['file']);
+					$plugin_file = ndxz_safe_subpath(DIRNAME . '/ndxzsite/plugin/', $function['file']);
+					if ($plugin_file !== false) include_once($plugin_file);
 						
 					if (class_exists($func_name)) 
 					{
@@ -306,8 +306,8 @@ class Hook
 					/// need to fix this up  
 					$accept_args = 1;
 					
-					if (file_exists(DIRNAME . '/ndxzsite/plugin/' . $function['file'])) 
-						include_once(DIRNAME . '/ndxzsite/plugin/' . $function['file']);
+					$plugin_file = ndxz_safe_subpath(DIRNAME . '/ndxzsite/plugin/', $function['file']);
+					if ($plugin_file !== false) include_once($plugin_file);
 						
 					if (class_exists($func_name)) 
 					{
@@ -538,7 +538,7 @@ class Hook
 	}
 	
 	
-	public function get_format_header_single($from_folder=PLUGINS_FOLDER, $filename) 
+	public function get_format_header_single($from_folder=PLUGINS_FOLDER, $filename='') 
 	{
 		if ($handle = @opendir ( $from_folder )) 
 		{

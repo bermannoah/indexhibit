@@ -149,13 +149,13 @@ class input_youtube
 				$out = parse_url($url);
 				if (!isset($out['host'])) return '';
 				parse_str($out['query'], $q);
-				return $q['v'];	
+				return isset($q['v']) ? preg_replace('/[^a-zA-Z0-9_-]/', '', $q['v']) : '';
 			}
 			else if (preg_match('/vimeo/i', $url))
 			{
 				// probably need to review this one
 				$out = explode('com/', $url);
-				return $out[1];
+				return isset($out[1]) ? preg_replace('/[^a-zA-Z0-9_-]/', '', $out[1]) : '';
 			}
 			else
 			{
@@ -164,7 +164,7 @@ class input_youtube
 		}
 		else
 		{
-			return $url;
+			return preg_replace('/[^a-zA-Z0-9_-]/', '', $url);
 		}
 	}
 }

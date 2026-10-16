@@ -640,6 +640,16 @@ class Template
 	
 	
 	/**
+	* Return hidden CSRF input
+	*
+	* @return string
+	*/
+	public function csrf_field()
+	{
+		return ndxz_csrf_field();
+	}
+
+	/**
 	* Return array
 	*
 	* @param void
@@ -648,7 +658,15 @@ class Template
 	public function tpl_add_script()
 	{
 		$out = '';
-		
+
+		// Always publish the CSRF token and configure jQuery to send it
+		// with every non-GET AJAX request in the admin backend.
+		$csrf = htmlspecialchars(ndxz_csrf_get(), ENT_QUOTES, 'UTF-8');
+		$out .= "\n<script type='text/javascript'>\n";
+		$out .= "var ndxz_csrf = " . json_encode($csrf) . ";\n";
+		$out .= "if (window.jQuery) { jQuery(document).ajaxSend(function(event, jqxhr, settings) { if (!settings.type || settings.type.toUpperCase() !== 'GET') { jqxhr.setRequestHeader('X-CSRF-Token', ndxz_csrf); } }); }\n";
+		$out .= "</script>\n\n";
+
 		if ($this->ex_css != '')
 		{
 			$out .= "\n<style type='text/css'>\n";

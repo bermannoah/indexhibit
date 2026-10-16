@@ -136,7 +136,8 @@ class Uploadhelper
 					$clean['media_thumb'] = $IMG->origname;
 					//$clean['media_thumb'] = $IMG->filename;
 
-					$OBJ->db->updateArray(PX.'media', $clean, "media_id='" . $_GET['xid'] . "'");
+					$xid = (int) (isset($_GET['xid']) ? $_GET['xid'] : 0);
+					$OBJ->db->updateArray(PX.'media', $clean, "media_id='" . $xid . "'");
 					//phpinfo(); exit;
 				}
 				else
@@ -307,7 +308,8 @@ class Uploadhelper
 						$clean['media_thumb'] = $IMG->origname;
 						//$clean['media_thumb'] = $IMG->filename;
 
-						$OBJ->db->updateArray(PX.'media', $clean, "media_id='" . $_GET['xid'] . "'");
+						$xid = (int) (isset($_GET['xid']) ? $_GET['xid'] : 0);
+						$OBJ->db->updateArray(PX.'media', $clean, "media_id='" . $xid . "'");
 						//phpinfo(); exit;
 					}
 					else

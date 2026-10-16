@@ -281,12 +281,19 @@ class Resize
 		$OBJ =& get_instance();
 		global $default;
 		
+		$dir = basename((string) $dir);
+		$base = realpath(DIRNAME . '/files/');
+		
 		// we should check to make sure the files are of the allowed type/mime
 		foreach ($images as $img)
 		{
+			$img = basename((string) $img);
+			$src = realpath(DIRNAME . '/files/' . $dir . '/' . $img);
+			if ($src === false || strpos($src, $base . '/') !== 0) continue;
+			
 			$mime = array_pop( explode('.', $img) );
 			
-			$size = getimagesize(DIRNAME . '/files/' . $dir . '/' . $img);
+			$size = getimagesize($src);
 
 			$clean['media_ref_id'] = $id;
 			$clean['media_order'] = 999;
@@ -296,7 +303,7 @@ class Resize
 			$clean['media_dir'] = $dir;
 			$clean['media_x'] = $size[0];
 			$clean['media_y'] = $size[1];
-			$clean['media_kb'] = @filesize(DIRNAME . '/files/' . $dir . '/' . $img);
+			$clean['media_kb'] = @filesize($src);
 			$clean['media_udate'] = getNow();
 			$clean['media_uploaded'] = getNow();
 			
@@ -424,10 +431,16 @@ class Resize
 		// we should check to make sure the files are of the allowed type/mime
 		//foreach ($images as $img)
 		//{
+			$dir = basename((string) $dir);
+			$img = basename((string) $img);
+			$src = realpath(DIRNAME . '/files/' . $dir . '/' . $img);
+			$base = realpath(DIRNAME . '/files/');
+			if ($src === false || $base === false || strpos($src, $base . '/') !== 0) { echo 'invalid image'; exit; }
+			
 			$mime = explode('.', $img);
 			$mime = array_pop($mime);
 			
-			$size = getimagesize(DIRNAME . '/files/' . $dir . '/' . $img);
+			$size = getimagesize($src);
 
 			$clean['media_ref_id'] = $id;
 			$clean['media_order'] = 999;
@@ -437,7 +450,7 @@ class Resize
 			$clean['media_dir'] = $dir;
 			$clean['media_x'] = $size[0];
 			$clean['media_y'] = $size[1];
-			$clean['media_kb'] = @filesize(DIRNAME . '/files/' . $dir . '/' . $img);
+			$clean['media_kb'] = @filesize($src);
 			$clean['media_udate'] = getNow();
 			$clean['media_uploaded'] = getNow();
 			

@@ -533,8 +533,12 @@ var baseurl = '" . BASEURL . "';";
 		
 		$this->db->updateRecord("UPDATE ".PX."objects SET bgimg = '' WHERE id = '$go[id]'");
 		
-		// need to validate x
-		delete_image(DIRNAME . BASEFILES . '/' . $_GET['x']);
+		// validate and keep the deletion inside the files directory
+		if (isset($_GET['x']))
+		{
+			$safe = ndxz_safe_path(DIRNAME . BASEFILES . '/', $_GET['x']);
+			if ($safe !== false) delete_image($safe);
+		}
 		
 		system_redirect("?a=$go[a]&q=settings&id=$go[id]");
 		exit;
@@ -1138,6 +1142,7 @@ var ide = '$go[id]';";
 		
 		$body = "<div style='text-align:left;' id='uploader'>\n";
 		$body .= "<form enctype='multipart/form-data' action='?a=$go[a]&q=jxload&id=$go[id]' method='post'>\n";
+		$body .= ndxz_csrf_field();
 		
 		$body .= "<div style='float:left; width:200px;'>\n";
 		$body .= "<input id='my_file_element' type='file' name='filename[]' >\n";
@@ -1225,7 +1230,7 @@ var ide = '$go[id]';";
 		if ($rs['bgimg'] != '')
 		{
 			$body = "<form action='?a=$go[a]&q=jxbg&id=$go[id]' method='post' name='iform' id='iform'>\n";		
-			$body .= "<div>\n";
+			$body .= ndxz_csrf_field();			$body .= "<div>\n";
 			$body .= "<a href='" . BASEURL . BASEFILES . "/$rs[bgimg]' target='_new'><img src='" . BASEURL . BASEFILES . "/$rs[bgimg]' width='25' style='padding-top:2px;' valign='center' border='0' /></a>";
 			$body .= " <input type='button' name='delete' id='delete' value='" . $this->lang->word('delete') . "' style='padding-top:0;' />\n";
 			$body .= "<input type='hidden' name='upload' value='1' />\n";
@@ -1237,7 +1242,7 @@ var ide = '$go[id]';";
 		else
 		{
 			$body = "<form enctype='multipart/form-data' action='?a=$go[a]&q=jxbg&id=$go[id]' method='post' name='iform' id='iform'>\n";		
-			$body .= "<div>\n";
+			$body .= ndxz_csrf_field();			$body .= "<div>\n";
 			$body .= "<input type='file' id='jxbg' name='jxbg' />\n";
 			$body .= "<input type='hidden' name='upload' value='1' />\n";
 			$body .= "</div>\n";
@@ -1320,7 +1325,7 @@ var ide = '$go[id]';";
 		//AND object = '".OBJECT."'
 		
 		// get record
-		$rs = $this->db->fetchRecord("SELECT id, title, secid, sec_path, status, section_top, section_sub, subdir       
+		$rs = $this->db->fetchRecord("SELECT id, title, url, secid, sec_path, status, section_top, section_sub, subdir       
 			FROM ".PX."objects, ".PX."objects_prefs, ".PX."sections 
 			WHERE id = '".$this->page_id."'  
 			AND obj_ref_type = object 
@@ -1396,13 +1401,17 @@ var ide = '$go[id]';";
 		$clean['pdate'] 	= getNow();
 
 		$this->db->updateArray(PX.'objects', $clean, "id='".$this->page_id."'");
+
+		// purge the published URL from the CDN
+		$purge_url = (isset($clean['url']) && $clean['url'] != '') ? $clean['url'] : $rs['url'];
+		ndxz_bunny_purge_url(BASEURL . $purge_url);
 	}
 	
 	
 	public function sbmt_unpublish_x()
 	{
 		// get record
-		$rs = $this->db->fetchRecord("SELECT section_top, subdir      
+		$rs = $this->db->fetchRecord("SELECT url, section_top, subdir      
 			FROM ".PX."objects  
 			WHERE id = '".$this->page_id."'");
 
@@ -1415,6 +1424,9 @@ var ide = '$go[id]';";
 		if (($rs['section_top'] == 1) || ($rs['subdir'] == 1)) { } else { $clean['url'] = ''; }
 
 		$this->db->updateArray(PX.'objects', $clean, "id='".$this->page_id."'");
+
+		// purge the affected URL from the CDN
+		ndxz_bunny_purge_url(BASEURL . $rs['url']);
 	}
 	
 	
@@ -1659,13 +1671,13 @@ var ide = '$go[id]';";
 		if ($_POST['update_value'] == '') { echo 'Error'; exit; }
 		
 		$clean['sec_desc'] = $_POST['update_value'];
-		$clean['secid'] = str_replace('s', '', $_POST['element_id']);
+		$clean['secid'] = (int) preg_replace('/[^0-9]/', '', (string) $_POST['element_id']);
 		
 		$this->db->updateArray(PX.'sections', $clean, "secid=$clean[secid]");
 		
 		// back to our page
 		header ('Content-type: text/html; charset=utf-8');
-		echo $clean['sec_desc'];
+		echo htmlspecialchars((string) $clean['sec_desc'], ENT_QUOTES, 'UTF-8');
 		exit;
 	}
 	
@@ -1913,6 +1925,9 @@ var ide = '$go[id]';";
 		// delete the cached file
 		if ($rs['status'] == 1) $this->delete_file($rs['url']);
 		
+		// purge the page from the CDN
+		if ($rs['status'] == 1) ndxz_bunny_purge_url(BASEURL . $rs['url']);
+		
 		header ('Content-type: text/html; charset=utf-8');
 		echo $this->lang->word('updating');
 		exit;
@@ -1946,18 +1961,18 @@ var ide = '$go[id]';";
 		// id here really is the name of the file
 		$clean['media_id'] = (int) $_POST['id'];
 		$clean['media_ref_id'] = (int) $_POST['rid'];
-		$clean['media_file'] = rawurldecode($_POST['f']);
+		$clean['media_file'] = basename(rawurldecode((string) $_POST['f']));
 		
 		$this->db->deleteArray(PX.'media', "media_id='$clean[media_id]'");
 		
 		$file = $clean['media_ref_id'] . '_' . $clean['media_file'];
 		
 		//load_helper('files');
-		$this->delete_image(DIRNAME . GIMGS . '/' . $clean['media_file']); // source image
-		$this->delete_image(DIRNAME . GIMGS . '/' . $file); // image
-		$this->delete_image(DIRNAME . GIMGS . '/th-' . $file); // thumbnail
-		$this->delete_image(DIRNAME . GIMGS . '/sys-' . $file); // system thumbnail
-		$this->delete_image(DIRNAME . GIMGS . '/systh-' . $file); // system thumbnail
+		$this->delete_image(ndxz_safe_path(DIRNAME . GIMGS . '/', $clean['media_file'])); // source image
+		$this->delete_image(ndxz_safe_path(DIRNAME . GIMGS . '/', $file)); // image
+		$this->delete_image(ndxz_safe_path(DIRNAME . GIMGS . '/', 'th-' . $file)); // thumbnail
+		$this->delete_image(ndxz_safe_path(DIRNAME . GIMGS . '/', 'sys-' . $file)); // system thumbnail
+		$this->delete_image(ndxz_safe_path(DIRNAME . GIMGS . '/', 'systh-' . $file)); // system thumbnail
 		
 		header ('Content-type: text/html; charset=utf-8');
 		echo $this->lang->word('updating');
@@ -2137,17 +2152,15 @@ var ide = '$go[id]';";
 			break;
 		case 'title':
 			load_module_helper('files', $go['a']);
-			$clean['title'] = trim(utf8Urldecode($_POST['v']));
+			$clean['title'] = trim(utf8Urldecode((string) $_POST['v']));
 			
 			// FIX THIS UP!
 			if ($clean['title'] == '') { echo "<span style='color: red;'>" . $this->lang->word('error') . "</span>"; exit; }
 			// update the subsection title too
 			if ($_POST['t'] == 'subsection')
 			{
-				$this->db->updateRecord("UPDATE ".PX."subsections SET
-					sub_title 	= '$clean[title]' 
-					WHERE 
-					sub_id		= " . $_POST['sub'] . "");
+				$sub = (int) $_POST['sub'];
+				$this->db->updateArray(PX.'subsections', array('sub_title' => $clean['title']), "sub_id = $sub");
 			}
 
 			break;
@@ -2188,7 +2201,7 @@ var ide = '$go[id]';";
 			$this->db->updateArray(PX.'objects', $clean, "id='$clean[id]'");
 			
 			header ('Content-type: text/html; charset=utf-8');
-			echo $clean['title'];
+			echo htmlspecialchars((string) $clean['title'], ENT_QUOTES, 'UTF-8');
 			exit;
 			break;
 		

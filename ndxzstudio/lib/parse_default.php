@@ -55,10 +55,9 @@ class Parse_default
 		// allows us to compile js and css as we move forward
 		$output = $this->last_parse($this->doVariables($output));
 		
-		// if parsing is enabled
-		$output = ($default['parsing'] == true) ?
-			eval('?>' . $output . '<?php ') :
-			preg_replace('|<\?[php]?(.)*\?>|sUi', '', $output);
+		// Never eval() user or database supplied content. Raw PHP in
+		// templates/content is stripped to prevent arbitrary code execution.
+		$output = preg_replace('|<\?[php]?(.)*\?>|sUi', '', $output);
 			
 		// make a hook for post parsing
 		return $output;
@@ -77,10 +76,8 @@ class Parse_default
 		// twice so we can have plugins and vars in our content var
 		$output = $this->parser($this->doVariables($input));
 		
-		// if parsing is enabled
-		return ($default['parsing'] == true) ?
-			eval('?>' . $output . '<?php ') :
-			preg_replace('|<\?[php]?(.)*\?>|sUi', '', $output);
+		// Never eval() user or database supplied content.
+		return preg_replace('|<\?[php]?(.)*\?>|sUi', '', $output);
 	}
 	
 	
@@ -209,8 +206,8 @@ class Parse_default
 		$arg_list = func_get_args();
 
 		$tmp_func = explode(':', $arg_list[0]['function']);
-		$this->func = trim($tmp_func[0]);
-		$this->method = (isset($tmp_func[1])) ? $tmp_func[1] : '';
+		$this->func = preg_replace('/[^a-z0-9_-]/i', '', trim($tmp_func[0]));
+		$this->method = (isset($tmp_func[1])) ? preg_replace('/[^a-z0-9_-]/i', '', $tmp_func[1]) : '';
 		$this->variables = (isset($arg_list[0]['variables'])) ? $arg_list[0]['variables'] : '';
 		
 		// make the variables
