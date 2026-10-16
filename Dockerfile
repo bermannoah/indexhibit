@@ -11,6 +11,7 @@ RUN set -eux; \
         libwebp-dev \
         libcurl4-openssl-dev \
         libonig-dev \
+        libicu-dev \
         unzip; \
     docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp; \
     docker-php-ext-install -j"$(nproc)" \
@@ -20,11 +21,14 @@ RUN set -eux; \
         mbstring \
         curl \
         exif \
+        intl \
         opcache; \
     rm -rf /var/lib/apt/lists/*
 
 # Apache: rewrite for the app, headers for static cache control, remoteip for proxy awareness.
 RUN a2enmod rewrite headers remoteip
+
+COPY docker/php.ini /usr/local/etc/php/conf.d/zz-indexhibit.ini
 
 COPY . /var/www/html
 

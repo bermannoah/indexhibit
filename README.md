@@ -15,7 +15,7 @@ This fork is hardened for modern PHP and containerized deployment behind a CDN.
 - PHP 8.5+
 - MySQL or MariaDB
 - Apache with `mod_rewrite` (recommended) or an equivalent rewrite setup
-- PHP extensions: `mysqli`, `pdo_mysql`, `gd`, `mbstring`, `curl`, `exif`
+- PHP extensions: `mysqli`, `pdo_mysql`, `gd`, `mbstring`, `curl`, `exif`, `intl`
 
 Docker is the easiest way to run the full stack locally or in production.
 
