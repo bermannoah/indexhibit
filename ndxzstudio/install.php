@@ -38,6 +38,20 @@ class Installation
 		
 		$this->lang = new Lang;
 		$this->lang->setlang($picked);
+
+		// Non-interactive install for container/CDN deployments. The
+		// entrypoint generates config.php from DB_* env vars; when
+		// AUTO_INSTALL is set this page will create the schema and seed
+		// the default user without showing the installer form.
+		if (getenv('AUTO_INSTALL') && file_exists(DIRNAME . '/ndxzsite/config/config.php'))
+		{
+			$auto = $this->auto_install_from_env();
+			if ($auto !== '')
+			{
+				$this->html = $auto;
+				return;
+			}
+		}
 				
 		switch( $this->get_page() ) 
 		{
@@ -602,7 +616,7 @@ class Installation
 		$sql[] = "CREATE TABLE IF NOT EXISTS ".PX."users (
 		  ID int(11) NOT NULL AUTO_INCREMENT,
 		  userid varchar(100) NOT NULL DEFAULT '',
-		  password varchar(32) NOT NULL DEFAULT '',
+		  password varchar(255) NOT NULL DEFAULT '',
 		  email varchar(100) NOT NULL DEFAULT '',
 		  threads tinyint(3) NOT NULL DEFAULT '10',
 		  writing tinyint(1) NOT NULL DEFAULT '0',
@@ -645,8 +659,10 @@ class Installation
 		// user cookie saved language selection
 		$the_lang = (isset($_COOKIE['user_lang'])) ? $_COOKIE['user_lang'] : 'en-us';
 
+		$init_password = ndxz_password_hash('exhibit');
+
 		$sql[] = "INSERT INTO `".PX."users` (`ID`, `userid`, `password`, `email`, `threads`, `writing`, `user_offset`, `user_format`, `user_lang`, `user_hash`, `user_help`, `user_mode`, `user_name`, `user_surname`, `user_admin`, `user_active`, `user_client`) VALUES
-		(1, 'index1', '22645ed8b5f5fa4b597d0fe61bed6a96', ".$this->db->escape($c['n_email']).", 15, 0, 0, '%d %B %Y', ".$this->db->escape($the_lang).", '5f8bfb51cc5c437a603abe3766d004d8', 0, 1, ".$this->db->escape($c['n_fname']).", ".$this->db->escape($c['n_lname']).", 1, 1, 0);";
+		(1, 'index1', ".$this->db->escape($init_password).", ".$this->db->escape($c['n_email']).", 15, 0, 0, '%d %B %Y', ".$this->db->escape($the_lang).", '', 0, 1, ".$this->db->escape($c['n_fname']).", ".$this->db->escape($c['n_lname']).", 1, 1, 0);";
 
 		foreach ($sql as $install)
 		{
@@ -722,12 +738,8 @@ class Installation
 		
 		if (isset($c[$var]))
 		{
-			if ($var == 'n_host')
-			{
-				return ($c['n_host'] == 'localhost') ? 'localhost' : $c['n_host'];
-			}
-			
-			return $c[$var];
+			$value = ($var == 'n_host' && $c['n_host'] != 'localhost') ? $c['n_host'] : $c[$var];
+			return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 		}
 	}
 	
@@ -740,15 +752,21 @@ class Installation
 		$path = DIRNAME . '/ndxzsite/config';
 		$filename = $path . '/config.php';
 		
+		$db = var_export((string) $c['n_name'], true);
+		$user = var_export((string) $c['n_user'], true);
+		$pass = var_export((string) $c['n_pwd'], true);
+		$host = var_export((string) $c['n_host'], true);
+		$appnd = var_export((string) $c['n_appnd'], true);
+		
 		$somecontent = "<?php  if (!defined('SITE')) exit('No direct script access allowed');
 
-\$indx['db'] 		= '$c[n_name]';
-\$indx['user'] 		= '$c[n_user]';
-\$indx['pass'] 		= '$c[n_pwd]';
-\$indx['host'] 		= '$c[n_host]';
+\$indx['db'] 		= $db;
+\$indx['user'] 		= $user;
+\$indx['pass'] 		= $pass;
+\$indx['host'] 		= $host;
 \$indx['sql']		= 'mysql';
 
-if (!defined('PX')) { define('PX', '$c[n_appnd]'); }";
+if (!defined('PX')) { define('PX', $appnd); }";
 
 		if (is_writable($path)) 
 		{
@@ -769,7 +787,7 @@ if (!defined('PX')) { define('PX', '$c[n_appnd]'); }";
 		return FALSE;
 	}
 	
-	function getLanguage($default='', $name, $attr='')
+	function getLanguage($default='', $name='', $attr='')
 	{
 		global $lang;
 
@@ -858,19 +876,19 @@ if (!defined('PX')) { define('PX', '$c[n_appnd]'); }";
 		$html .= "<div style='width: 250px; margin: 24px 0 12px 0;'><hr /></div>";
 
 		$html .= "<label>" . $this->lang->word('database server') . "</label><br />\n";
-		$html .= "<input type='text' name='n_host' value='".$indx['host']."' maxlength='50' />\n";
+		$html .= "<input type='text' name='n_host' value='".htmlspecialchars((string) $indx['host'], ENT_QUOTES, 'UTF-8')."' maxlength='50' />\n";
 
 		$html .= "<label>" . $this->lang->word('database name') . "</label><br />\n";
-		$html .= "<input type='text' name='n_name' value='".$indx['db']."' maxlength='50' />\n";
+		$html .= "<input type='text' name='n_name' value='".htmlspecialchars((string) $indx['db'], ENT_QUOTES, 'UTF-8')."' maxlength='50' />\n";
 
 		$html .= "<label>" . $this->lang->word('database username') . "</label><br />\n";
-		$html .= "<input type='text' name='n_user' value='".$indx['user']."' maxlength='35' />\n";
+		$html .= "<input type='text' name='n_user' value='".htmlspecialchars((string) $indx['user'], ENT_QUOTES, 'UTF-8')."' maxlength='35' />\n";
 
 		$html .= "<label>" . $this->lang->word('database password') . "</label><br />\n";
-		$html .= "<input type='password' name='n_pwd' value='".$indx['pass']."' maxlength='35' />\n";
+		$html .= "<input type='password' name='n_pwd' value='".htmlspecialchars((string) $indx['pass'], ENT_QUOTES, 'UTF-8')."' maxlength='35' />\n";
 
 		$html .= "<label>" . $this->lang->word('database append') . "</label><br />\n";
-		$html .= "<input type='text' name='n_appnd' value='$prefix' maxlength='20' />\n";
+		$html .= "<input type='text' name='n_appnd' value='".htmlspecialchars((string) $prefix, ENT_QUOTES, 'UTF-8')."' maxlength='20' />\n";
 
 		$html .= "<input type='submit' name='n_submit' value='" . $this->lang->word('submit') . "' maxlength='50' /><br />\n";
 
@@ -879,6 +897,41 @@ if (!defined('PX')) { define('PX', '$c[n_appnd]'); }";
 		$html .= "</div>\n";
 		
 		return $html;
+	}
+
+
+	function env_install_config()
+	{
+		return array(
+			'n_host' => getenv('DB_HOST') ? getenv('DB_HOST') : 'localhost',
+			'n_name' => getenv('DB_NAME') ? getenv('DB_NAME') : '',
+			'n_user' => getenv('DB_USER') ? getenv('DB_USER') : '',
+			'n_pwd' => getenv('DB_PASS') ? getenv('DB_PASS') : '',
+			'n_site' => getenv('SITE_NAME') ? getenv('SITE_NAME') : 'example.com',
+			'n_appnd' => getenv('DB_PREFIX') ? getenv('DB_PREFIX') : 'ndxz_',
+			'n_fname' => getenv('ADMIN_FNAME') ? getenv('ADMIN_FNAME') : 'Admin',
+			'n_lname' => getenv('ADMIN_LNAME') ? getenv('ADMIN_LNAME') : 'Admin',
+			'n_email' => getenv('ADMIN_EMAIL') ? getenv('ADMIN_EMAIL') : 'admin@example.com'
+		);
+	}
+
+
+	function auto_install_from_env()
+	{
+		require_once DIRNAME . '/ndxzsite/config/config.php';
+		require_once DIRNAME . '/ndxzstudio/db/db.mysql.php';
+
+		$GLOBALS['indx'] = $indx;
+		$this->db = new Db();
+
+		// already installed?
+		$installed = $this->db->query("SELECT 1 FROM ".PX."objects LIMIT 1");
+		if ($installed) return '';
+
+		$c = $this->env_install_config();
+		$GLOBALS['c'] = $c;
+
+		return $this->do_installation();
 	}
 	
 	
@@ -901,6 +954,20 @@ if (!defined('PX')) { define('PX', '$c[n_appnd]'); }";
 			$c['n_email']	= getPOST('n_email', '', 'none', 100);
 		
 			$GLOBALS['c'] = $c;
+		}
+		elseif (getenv('AUTO_INSTALL'))
+		{
+			global $c;
+			if (!is_array($c)) $c = $this->env_install_config();
+			$GLOBALS['c'] = $c;
+		}
+		else
+		{
+			// make error note
+			$s = "<p><span class='ok-not'>XX</span> " . $this->lang->word('check config') . "</p><br />";
+			$s .= "<p><small>" . $this->lang->word('goto forum') . "</small></p><br />";
+			return $s;
+		}
 		
 			// check connection - tables exist?
 			$link = @mysqli_connect($c['n_host'], $c['n_user'], $c['n_pwd']);
@@ -916,8 +983,10 @@ if (!defined('PX')) { define('PX', '$c[n_appnd]'); }";
 			
 				if ($result)
 				{
-					setcookie('ndxz_hash', '5f8bfb51cc5c437a603abe3766d004d8', time()+3600*24*2, '/');
-					setcookie('ndxz_access', md5('exhibit'), time()+3600*24*2, '/');
+					$token = ndxz_login_token_new();
+					$this->db->updateArray(PX.'users', array('user_hash' => ndxz_login_token_hash($token)), "ID='1'");
+					setcookie('ndxz_hash', ndxz_login_token_hash($token), ndxz_auth_cookie_options(time()+3600*24*2));
+					setcookie('ndxz_access', $token, ndxz_auth_cookie_options(time()+3600*24*2));
 					header('location:' . BASEURL . BASENAME . '/install.php?p=3&s=success');
 					exit;
 				}
@@ -932,13 +1001,6 @@ if (!defined('PX')) { define('PX', '$c[n_appnd]'); }";
 				$s = "<p><span class='ok-not'>XX</span> " . $this->lang->word('check config') . "</p><br />";
 				$s .= "<p><small>" . $this->lang->word('goto forum') . "</small></p><br />";
 			}
-		}
-		else
-		{
-			// make error note
-			$s = "<p><span class='ok-not'>XX</span> " . $this->lang->word('check config') . "</p><br />";
-			$s .= "<p><small>" . $this->lang->word('goto forum') . "</small></p><br />";
-		}
 		
 		return $s;
 	}
