@@ -131,12 +131,10 @@ class IndexhibitInstaller
 			$this->charset_collate .= ' COLLATE ' . $this->collate;
 		}
 
-		$ver = substr(mysqli_get_client_version(), 0, 1);
-
-		if (is_numeric($ver) && $ver <= 4)
-		{
-			$this->isam = 'TYPE=MyISAM';
-		}
+		// Modern MySQL/MariaDB no longer understands the old TYPE= syntax.
+		// The previous client-version check produced an invalid statement on
+		// some MariaDB clients, so always use ENGINE=MyISAM here.
+		$this->isam = 'ENGINE=MyISAM DEFAULT CHARSET=utf8';
 	}
 
 	/**
