@@ -1,0 +1,48 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8080:80"
+    environment:
+      DB_HOST: db
+      DB_NAME: indexhibit
+      DB_USER: indexhibit
+      DB_PASS: indexhibit
+      DB_PREFIX: ndxz_
+      PUBLIC_URL: http://localhost:8080
+      TRUSTED_PROXIES: "*"
+      AUTO_INSTALL: "1"
+      SITE_NAME: example.com
+      ADMIN_EMAIL: admin@example.com
+      ADMIN_FNAME: Admin
+      ADMIN_LNAME: Admin
+      BUNNY_API_KEY: ""
+      BUNNY_PULL_ZONE_ID: ""
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - app_files:/var/www/html/files
+      - app_config:/var/www/html/ndxzsite/config
+      - app_cache:/var/www/html/ndxzsite/cache
+
+  db:
+    image: mariadb:11
+    environment:
+      MARIADB_DATABASE: indexhibit
+      MARIADB_USER: indexhibit
+      MARIADB_PASSWORD: indexhibit
+      MARIADB_ROOT_PASSWORD: root
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  app_files:
+  app_config:
+  app_cache:
+  db_data:

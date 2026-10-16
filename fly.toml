@@ -1,0 +1,41 @@
+app = "indexhibit"
+primary_region = "ewr"
+
+[build]
+
+[http_service]
+  internal_port = 80
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 1
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
+
+[[mounts]]
+  source = "indexhibit_files"
+  destination = "/var/www/html/files"
+
+[[mounts]]
+  source = "indexhibit_config"
+  destination = "/var/www/html/ndxzsite/config"
+
+[[mounts]]
+  source = "indexhibit_cache"
+  destination = "/var/www/html/ndxzsite/cache"
+
+[env]
+  PUBLIC_URL = "https://example.com"
+  TRUSTED_PROXIES = "*"
+  AUTO_INSTALL = "1"
+  SITE_NAME = "example.com"
+  DB_PREFIX = "ndxz_"
+  ADMIN_EMAIL = "admin@example.com"
+  ADMIN_FNAME = "Admin"
+  ADMIN_LNAME = "Admin"
+
+# Set these with `fly secrets set` instead of putting them in this file:
+#   DB_HOST, DB_NAME, DB_USER, DB_PASS
+#   BUNNY_API_KEY, BUNNY_PULL_ZONE_ID

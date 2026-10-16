@@ -1,0 +1,23 @@
+.git
+.gitignore
+README.md
+docs
+docker-compose.yml
+fly.toml
+fly.mariadb.toml
+.env
+.env.example
+*.md
+
+# User-uploaded content should live on volumes, not in the image.
+files/**
+!files/index.html
+!files/gimgs/
+!files/gimgs/index.html
+!files/dimgs/
+!files/dimgs/index.html
+!files/.htaccess
+
+ndxzsite/cache/**
+ndxzsite/config/config.php
+ndxz-studio
