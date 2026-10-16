@@ -7,6 +7,16 @@
 * @author Vaska
 */
 
+// The legacy browser installer is disabled by default. Container
+// deployments install non-interactively through the entrypoint
+// (AUTO_INSTALL). Set ALLOW_WEB_INSTALL=1 to re-enable the browser
+// installer for manual use.
+if (PHP_SAPI !== 'cli' && getenv('ALLOW_WEB_INSTALL') !== '1')
+{
+	http_response_code(404);
+	exit('Not found');
+}
+
 // annoying date setting thing
 if (function_exists("date_default_timezone_set") && function_exists("date_default_timezone_get"))
 {
@@ -983,6 +993,11 @@ if (!defined('PX')) { define('PX', $appnd); }";
 			
 				if ($result)
 				{
+					if (PHP_SAPI === 'cli')
+					{
+						echo "Install complete.\n";
+						exit(0);
+					}
 					$token = ndxz_login_token_new();
 					$this->db->updateArray(PX.'users', array('user_hash' => ndxz_login_token_hash($token)), "ID='1'");
 					setcookie('ndxz_hash', ndxz_login_token_hash($token), ndxz_auth_cookie_options(time()+3600*24*2));
@@ -994,12 +1009,14 @@ if (!defined('PX')) { define('PX', $appnd); }";
 				{
 					$s = "<p><span class='ok-not'>XX</span> " . $this->lang->word('cannot install') . "</p><br />";
 					$s .= "<p><small>" . $this->lang->word('goto forum') . "</small></p><br />";
+					if (PHP_SAPI === 'cli') { fwrite(STDERR, strip_tags($s) . "\n"); exit(1); }
 				}
 			}
 			else
 			{
 				$s = "<p><span class='ok-not'>XX</span> " . $this->lang->word('check config') . "</p><br />";
 				$s .= "<p><small>" . $this->lang->word('goto forum') . "</small></p><br />";
+				if (PHP_SAPI === 'cli') { fwrite(STDERR, strip_tags($s) . "\n"); exit(1); }
 			}
 		
 		return $s;
@@ -1196,6 +1213,11 @@ if (!defined('PX')) { define('PX', $appnd); }";
 	}
 }
 $install = new Installation;
+
+// In CLI mode the installer runs non-interactively; never render the
+// browser UI.
+if (PHP_SAPI === 'cli') exit(0);
+
 header ('Content-type: text/html; charset=utf-8'); ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">

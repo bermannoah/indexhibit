@@ -27,14 +27,12 @@ Docker is the easiest way to run the full stack locally or in production.
 docker compose up --build
 ```
 
-Then open:
+With `AUTO_INSTALL=1` (the default in `docker-compose.yml`), the container
+creates the schema and seeds the initial user on first boot. Then log in at:
 
 ```text
-http://localhost:8080/ndxzstudio/install.php
+http://localhost:8080/ndxzstudio/
 ```
-
-With `AUTO_INSTALL=1` (the default in `docker-compose.yml`), the installer will
-create the schema and seed the initial user automatically.
 
 Default login:
 
@@ -71,7 +69,8 @@ The container reads configuration from environment variables and writes
 | `DB_PREFIX` | no | Table prefix, default `ndxz_` |
 | `PUBLIC_URL` | yes | Public base URL, e.g. `https://example.com` |
 | `TRUSTED_PROXIES` | no | `*` to trust Fly/Bunny forwarded headers, or a CSV of proxy IPs |
-| `AUTO_INSTALL` | no | `1` to auto-install when visiting `/ndxzstudio/install.php` |
+| `AUTO_INSTALL` | no | `1` to install the schema/seed automatically on first boot |
+| `ALLOW_WEB_INSTALL` | no | Set `1` to re-enable the legacy browser installer |
 | `SITE_NAME` | no | Site name used during auto-install |
 | `ADMIN_EMAIL` | no | Initial admin email during auto-install |
 | `ADMIN_FNAME` | no | Initial admin first name |
@@ -124,13 +123,15 @@ IP of the MariaDB app instead:
 fly ips list -a indexhibit-db
 ```
 
-### 3. Run the installer once
+### 3. Log in
+
+`AUTO_INSTALL=1` in `fly.toml` seeds the database on first boot. Log in at:
 
 ```text
-https://example.com/ndxzstudio/install.php
+https://example.com/ndxzstudio/
 ```
 
-Then log in and change the default password.
+Change the default password immediately.
 
 ---
 
@@ -174,7 +175,8 @@ This fork includes a number of hardening fixes, including:
 
 ## Manual / legacy installation
 
-The original browser installer is still available at:
+The browser installer is disabled by default. To use it (for example, for a
+manual install), set `ALLOW_WEB_INSTALL=1` and visit:
 
 ```text
 /ndxzstudio/install.php
@@ -188,7 +190,8 @@ It requires write access to:
 - `ndxzsite/config/`
 - `ndxzsite/cache/`
 
-After installation, remove or restrict access to `install.php`.
+Remove the `ALLOW_WEB_INSTALL` setting after installation, or rely on the
+container entrypoint install instead.
 
 ---
 

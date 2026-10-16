@@ -15,7 +15,8 @@ only.
 | `DB_PREFIX` | no | Table prefix (default: `ndxz_`) |
 | `PUBLIC_URL` | yes | Public base URL, e.g. `https://example.com` |
 | `TRUSTED_PROXIES` | no | `*` to trust Fly/Bunny forwarded headers, or a CSV of IPs |
-| `AUTO_INSTALL` | no | `1` to auto-create schema/seed when visiting `/ndxzstudio/install.php` |
+| `AUTO_INSTALL` | no | `1` to auto-create the schema/seed on first boot |
+| `ALLOW_WEB_INSTALL` | no | Set `1` to re-enable the legacy browser installer |
 | `SITE_NAME` | no | Site name used during auto-install |
 | `ADMIN_EMAIL` | no | Initial admin email during auto-install |
 | `ADMIN_FNAME` | no | Initial admin first name |
@@ -32,8 +33,8 @@ immediately after first login).
 docker compose up --build
 ```
 
-Open `http://localhost:8080/ndxzstudio/install.php`. With `AUTO_INSTALL=1` it
-will create the schema and seed the default user automatically, then redirect.
+With `AUTO_INSTALL=1` the container creates the schema and seeds the default
+user on first boot. Log in at `http://localhost:8080/ndxzstudio/`.
 
 ## Fly.io
 
@@ -64,13 +65,15 @@ fly deploy -c fly.toml
 If `.flycast` hostname resolution doesn't work for your organization, use the
 MariaDB app's private IP (`fly ips list -a indexhibit-db`) as `DB_HOST`.
 
-After deploy, visit:
+With `AUTO_INSTALL=1` in `fly.toml`, the first boot seeds the database. Log in
+at:
 
 ```text
-https://example.com/ndxzstudio/install.php
+https://example.com/ndxzstudio/
 ```
 
-Once it reports installed, log in and change the default password.
+Change the default password immediately. The legacy browser installer is
+disabled unless `ALLOW_WEB_INSTALL=1` is set.
 
 ## Bunny.net
 

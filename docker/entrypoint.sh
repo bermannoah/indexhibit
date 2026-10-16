@@ -25,4 +25,19 @@ chown -R www-data:www-data \
     /var/www/html/ndxzsite/config \
     /var/www/html/ndxzsite/cache
 
+# Non-interactive first-run install. The database may still be starting,
+# so retry for a while before giving up.
+if [ "$AUTO_INSTALL" = "1" ]; then
+    i=0
+    until (cd /var/www/html/ndxzstudio && php install.php) >/dev/null 2>&1; do
+        i=$((i+1))
+        if [ "$i" -ge 30 ]; then
+            echo "Indexhibit auto-install failed after 30 attempts." >&2
+            break
+        fi
+        echo "Waiting for database before install ($i/30)..."
+        sleep 2
+    done
+fi
+
 exec "$@"
