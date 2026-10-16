@@ -9,7 +9,7 @@
 //  & <http://www.textdrive.com/
 // ---------------------------------------------------
 
-function textProcess($text='', $override)
+function textProcess($text='', $override=0)
 {
 	if ($text != '')
 	{
@@ -115,7 +115,7 @@ function glyphs($text)
 
 
 // text_reduction($go['content'], "&nbsp;", '<p><br>' 50);
-function text_reduction($string='', $repl, $allow='', $limit=40)
+function text_reduction($string='', $repl='', $allow='', $limit=40)
 {
     if (($string == '') || ($string == null)) return;
  

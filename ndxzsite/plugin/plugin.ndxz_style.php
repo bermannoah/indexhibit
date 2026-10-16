@@ -210,7 +210,7 @@ class indexhibit_style
 	}
 	
 	
-	public function color_chooser($value='fff', $title, $id)
+	public function color_chooser($value='fff', $title='', $id='')
 	{
 		$OBJ =& get_instance();
 
@@ -267,7 +267,7 @@ class indexhibit_style
 		return $html;
 	}
 	
-	public function slider_widget($value=9, $min=0, $max=200, $title, $id)
+	public function slider_widget($value=9, $min=0, $max=200, $title='', $id='')
 	{
 		$OBJ =& get_instance();
 
@@ -312,7 +312,7 @@ class indexhibit_style
 	}
 	
 	
-	public function font_size($size=9, $title, $var, $min, $max)
+	public function font_size($size=9, $title='', $var='', $min=0, $max=200)
 	{
 		$OBJ =& get_instance();
 

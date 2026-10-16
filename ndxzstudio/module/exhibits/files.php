@@ -1,7 +1,7 @@
 <?php if (!defined('SITE')) exit('No direct script access allowed');
 
 
-function getSection($section='', $name, $attr='')
+function getSection($section='', $name='', $attr='')
 {
 	global $default;
 	
@@ -81,7 +81,7 @@ function getSections()
 }
 
 
-function getSectionOrd($section='', $name, $attr='')
+function getSectionOrd($section='', $name='', $attr='')
 {
 	$OBJ =& get_instance();
 	
@@ -170,7 +170,7 @@ function getThemes($path, $default)
 }
 
 
-function get_templates($template='', $name, $attr='')
+function get_templates($template='', $name='', $attr='')
 {
 	$OBJ =& get_instance();
 
