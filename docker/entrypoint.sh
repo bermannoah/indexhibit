@@ -29,7 +29,7 @@ chown -R www-data:www-data \
 # so retry for a while before giving up.
 if [ "$AUTO_INSTALL" = "1" ]; then
     i=0
-    until (cd /var/www/html/ndxzstudio && php install.php) >/dev/null 2>&1; do
+    until (cd /var/www/html && php ndxzstudio/install-cli.php) >/dev/null 2>&1; do
         i=$((i+1))
         if [ "$i" -ge 30 ]; then
             echo "Indexhibit auto-install failed after 30 attempts." >&2

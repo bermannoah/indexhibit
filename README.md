@@ -70,7 +70,6 @@ The container reads configuration from environment variables and writes
 | `PUBLIC_URL` | yes | Public base URL, e.g. `https://example.com` |
 | `TRUSTED_PROXIES` | no | `*` to trust Fly/Bunny forwarded headers, or a CSV of proxy IPs |
 | `AUTO_INSTALL` | no | `1` to install the schema/seed automatically on first boot |
-| `ALLOW_WEB_INSTALL` | no | Set `1` to re-enable the legacy browser installer |
 | `SITE_NAME` | no | Site name used during auto-install |
 | `ADMIN_EMAIL` | no | Initial admin email during auto-install |
 | `ADMIN_FNAME` | no | Initial admin first name |
@@ -173,13 +172,14 @@ This fork includes a number of hardening fixes, including:
 
 ---
 
-## Manual / legacy installation
+## Manual installation (CLI)
 
-The browser installer is disabled by default. To use it (for example, for a
-manual install), set `ALLOW_WEB_INSTALL=1` and visit:
+There is no browser installer. Install from the command line:
 
-```text
-/ndxzstudio/install.php
+```bash
+export DB_HOST=... DB_NAME=... DB_USER=... DB_PASS=...
+export SITE_NAME=example.com ADMIN_EMAIL=you@example.com
+php ndxzstudio/install-cli.php
 ```
 
 It requires write access to:
@@ -190,8 +190,8 @@ It requires write access to:
 - `ndxzsite/config/`
 - `ndxzsite/cache/`
 
-Remove the `ALLOW_WEB_INSTALL` setting after installation, or rely on the
-container entrypoint install instead.
+Configured via `PUBLIC_URL`, `DB_*`, and `ADMIN_*` environment variables. The
+CLI installer is idempotent: running it again is safe.
 
 ---
 

@@ -16,7 +16,6 @@ only.
 | `PUBLIC_URL` | yes | Public base URL, e.g. `https://example.com` |
 | `TRUSTED_PROXIES` | no | `*` to trust Fly/Bunny forwarded headers, or a CSV of IPs |
 | `AUTO_INSTALL` | no | `1` to auto-create the schema/seed on first boot |
-| `ALLOW_WEB_INSTALL` | no | Set `1` to re-enable the legacy browser installer |
 | `SITE_NAME` | no | Site name used during auto-install |
 | `ADMIN_EMAIL` | no | Initial admin email during auto-install |
 | `ADMIN_FNAME` | no | Initial admin first name |
@@ -26,6 +25,10 @@ only.
 
 The default initial login is still **`index1` / `exhibit`** (change it
 immediately after first login).
+
+There is no browser installer; installation runs from the CLI
+(`ndxzstudio/install-cli.php`) or automatically from the container entrypoint
+when `AUTO_INSTALL=1`.
 
 ## Local development with Docker Compose
 
@@ -72,8 +75,14 @@ at:
 https://example.com/ndxzstudio/
 ```
 
-Change the default password immediately. The legacy browser installer is
-disabled unless `ALLOW_WEB_INSTALL=1` is set.
+Change the default password immediately.
+
+To install manually instead of at boot:
+
+```bash
+DB_HOST=... DB_NAME=... DB_USER=... DB_PASS=... \
+  php ndxzstudio/install-cli.php
+```
 
 ## Bunny.net
 
