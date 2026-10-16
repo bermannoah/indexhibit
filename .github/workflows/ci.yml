@@ -1,0 +1,110 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  php-lint:
+    name: PHP lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          coverage: none
+
+      - name: Lint PHP
+        run: |
+          set -o pipefail
+          find . -name '*.php' -not -path './.git/*' -print0 \
+            | xargs -0 -n1 php -l
+
+      - name: Lint shell
+        run: sh -n docker/entrypoint.sh
+
+  install-smoke-test:
+    name: CLI install smoke test
+    runs-on: ubuntu-latest
+
+    services:
+      mariadb:
+        image: mariadb:11
+        env:
+          MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: "1"
+          MARIADB_DATABASE: indexhibit
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: mysqli, gd, mbstring, curl, exif, intl
+          coverage: none
+
+      - name: Run installer
+        env:
+          DB_HOST: 127.0.0.1
+          DB_NAME: indexhibit
+          DB_USER: root
+          DB_PASS: ''
+          DB_PREFIX: ndxz_
+          SITE_NAME: example.com
+          ADMIN_EMAIL: admin@example.com
+          ADMIN_FNAME: Admin
+          ADMIN_LNAME: Admin
+        run: php ndxzstudio/install-cli.php
+
+      - name: Verify seed data
+        run: |
+          php -r '
+            mysqli_report(MYSQLI_REPORT_OFF);
+            $m = mysqli_connect("127.0.0.1", "root", "");
+            mysqli_select_db($m, "indexhibit");
+            $r = mysqli_query($m, "SELECT COUNT(*) AS c FROM ndxz_objects");
+            $row = mysqli_fetch_assoc($r);
+            if ((int) $row["c"] < 3) { fwrite(STDERR, "seed missing\n"); exit(1); }
+            $s = mysqli_query($m, "SELECT site_name FROM ndxz_settings WHERE adm_id = 1");
+            $srow = mysqli_fetch_assoc($s);
+            if ($srow["site_name"] !== "example.com") { fwrite(STDERR, "settings seed wrong\n"); exit(1); }
+            echo "install smoke test passed\n";
+          '
+
+      - name: Re-run installer (idempotency)
+        env:
+          DB_HOST: 127.0.0.1
+          DB_NAME: indexhibit
+          DB_USER: root
+          DB_PASS: ''
+          DB_PREFIX: ndxz_
+        run: php ndxzstudio/install-cli.php
+
+  docker-build:
+    name: Docker build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          tags: indexhibit:ci
