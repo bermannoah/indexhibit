@@ -38,6 +38,11 @@ class Db
 	{
 		global $indx;
 
+		// PHP 8.1+ defaults mysqli to throwing exceptions. The rest of
+		// this codebase expects query() to return false on error, so keep
+		// the legacy error mode.
+		mysqli_report(MYSQLI_REPORT_OFF);
+
 		if (!$indx['host']) $this->db_out_of_order();
 
 		$this->link = mysqli_connect($indx['host'], $indx['user'], $indx['pass']);

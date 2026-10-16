@@ -1,8 +1,5 @@
 <?php if (!defined('SITE')) exit('No direct script access allowed');
 
-// darn quotes
-ini_set("magic_quotes_runtime", 0);
-
 // version
 define('VERSION', '2.1.6');
 	

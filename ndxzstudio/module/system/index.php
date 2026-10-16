@@ -3132,9 +3132,7 @@ var baseurl = '" . BASEURL . "';";
 				$p['pl_desc'] = $plugin['description'];
 				$p['pl_options_build'] = $plugin['options'];
 					
-				// we really need this?
-				$p = array_map('mysqli_real_escape_string', $p);
-					
+				// insertArray() escapes values; no manual array_map needed.
 				$last = $this->db->insertArray(PX.'plugins', $p);
 			}
 		}
