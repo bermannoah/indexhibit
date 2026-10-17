@@ -136,18 +136,18 @@ Change the default password immediately.
 
 ## Bunny.net CDN
 
-Bunny.net is configured as a **pull** CDN for static assets only.
+Bunny.net is configured as a **pull** CDN for static assets only. Point the
+pull zone at the Fly app origin, add your public hostname, then add edge rules:
 
-1. Create a pull zone for the public hostname.
-2. Set the origin URL to the Fly app, e.g. `https://indexhibit.fly.dev`.
-3. Cache only static paths:
-   - `/files/*`
-   - `/ndxzsite/css/*`
-   - `/ndxzsite/js/*`
-   - `/ndxzsite/img/*`
-   - `/ndxzsite/default/*`
-   - `/ndxzsite/mobile/*`
-4. Leave `/ndxzstudio/*` uncached.
+| Path | Action | Edge TTL |
+| --- | --- | --- |
+| `/ndxzstudio/*` | **Bypass cache** | — |
+| `/files/*` | **Cache** (force / override TTL) | 1 year |
+| `/ndxzsite/css/*`, `/js/*`, `/img/*`, `/default/*`, `/mobile/*` | **Cache** (force / override TTL) | 1 year |
+
+HTML pages stay uncached (the app sends `Cache-Control: no-cache`). Do not
+enable "Ignore Query String" on `/ndxzsite/*` — CSS/JS use `?v=` cache busting.
+See [docs/DEPLOY.md](docs/DEPLOY.md) for the full rule details.
 
 When `BUNNY_API_KEY` and `BUNNY_PULL_ZONE_ID` are set, Indexhibit purges the
 CDN automatically when pages are published/unpublished/edited, CSS assets are
