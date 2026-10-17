@@ -86,10 +86,19 @@ DB_HOST=... DB_NAME=... DB_USER=... DB_PASS=... \
 
 ## Deploying from a private repository
 
-The public repository is the upstream. If your production repo is private,
-mirror the app into it and keep private-only changes isolated so you can rebase
-from upstream. No submodules are used — the private repo holds the full source
-so `fly deploy` can build from it.
+> **Do not deploy production directly from the upstream repo.** Keep upstream
+> as a source to sync from, and deploy from your own private repo so your
+> config, secrets, and the exact ref you ship stay under your control.
+
+There are two shapes for that private repo. Neither uses submodules:
+
+- **Full mirror** — contains the app source; `fly deploy` builds it. This is
+  also what you need if you want the Fly dashboard/GitHub integration to build
+  for you.
+- **Thin deploy repo** — contains only Fly config plus a deploy script; it
+  clones upstream at deploy time. Local/scripted deploys only.
+
+The steps below describe the full mirror; the thin variant is at the end.
 
 ### 1. Create the private mirror
 
@@ -174,6 +183,56 @@ https://<your-domain>/ndxzstudio/
 ```
 
 Change the default password immediately.
+
+### 7. Alternative: thin deploy repo
+
+A thin repo keeps no app code in git. It clones upstream at deploy time and
+copies in the private Fly config:
+
+```text
+deploy-repo/
+├── fly.toml
+├── fly.mariadb.toml
+├── deploy.sh
+└── README.md
+```
+
+`deploy.sh`:
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")"
+
+UPSTREAM_REPO="${UPSTREAM_REPO:-https://github.com/<upstream-org>/indexhibit.git}"
+UPSTREAM_REF="${1:-main}"
+
+workdir="$(mktemp -d)"
+trap 'rm -rf "$workdir"' EXIT
+
+git clone --depth 1 --branch "$UPSTREAM_REF" "$UPSTREAM_REPO" "$workdir"
+cp fly.toml fly.mariadb.toml "$workdir/"
+
+cd "$workdir"
+fly deploy -c fly.mariadb.toml
+fly deploy -c fly.toml
+```
+
+```bash
+./deploy.sh main   # or a tag for a reproducible deploy
+```
+
+Tradeoffs:
+
+- Pin `UPSTREAM_REF` to a tag (or branch) for reproducible deploys; `main`
+  deploys whatever upstream currently has.
+- You cannot patch the app privately — the deployed code is exactly the
+  upstream ref.
+- The Fly dashboard/GitHub build integration needs the source, so it only
+  works with the full-mirror option. The thin repo is for local deploys.
+
+The config files are identical to the mirror option — same placeholders,
+secrets, and deploy commands.
 
 ## Bunny.net
 
