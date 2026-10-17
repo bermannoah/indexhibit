@@ -84,6 +84,97 @@ DB_HOST=... DB_NAME=... DB_USER=... DB_PASS=... \
   php ndxzstudio/install-cli.php
 ```
 
+## Deploying from a private repository
+
+The public repository is the upstream. If your production repo is private,
+mirror the app into it and keep private-only changes isolated so you can rebase
+from upstream. No submodules are used — the private repo holds the full source
+so `fly deploy` can build from it.
+
+### 1. Create the private mirror
+
+Import the public repo into a new private repo (GitHub → **New repository** →
+**Import a repository**), or mirror-push:
+
+```bash
+git clone --bare https://github.com/<upstream-org>/indexhibit.git
+cd indexhibit.git
+git push --mirror git@github.com:<you>/<private-repo>.git
+```
+
+### 2. Track upstream
+
+```bash
+git remote add upstream https://github.com/<upstream-org>/indexhibit.git
+git fetch upstream
+git rebase upstream/main   # or: git merge upstream/main
+```
+
+Keep private-only files in paths upstream doesn't track, or in a single commit
+on top of upstream, so rebases stay clean. If you edit upstream-tracked files
+like `fly.toml`, expect the occasional conflict and resolve by keeping your app
+name and region.
+
+### 3. Configure Fly
+
+The `fly.toml` / `fly.mariadb.toml` in this repo are generic templates. In the
+private repo, replace the placeholders:
+
+- `fly.toml`: `app`, `primary_region`, `PUBLIC_URL`, `SITE_NAME`, `ADMIN_*`
+- `fly.mariadb.toml`: `app` (for example `<app-name>-db`), `primary_region`
+
+The Fly CLI will generate a `fly.toml` for you if you don't have one — run
+`fly launch` and decline the database/Redis add-ons, since MariaDB is deployed
+from `fly.mariadb.toml`. Otherwise, create the apps directly:
+
+```bash
+fly auth login
+fly apps create <app-name>    -o <fly-org>
+fly apps create <app-name>-db -o <fly-org>
+```
+
+### 4. Secrets
+
+```bash
+# MariaDB app
+fly secrets set MARIADB_PASSWORD='...' MARIADB_ROOT_PASSWORD='...' -a <app-name>-db
+
+# web app
+fly secrets set \
+  DB_HOST='<app-name>-db.flycast' \
+  DB_NAME='indexhibit' DB_USER='indexhibit' DB_PASS='...' \
+  BUNNY_API_KEY='...' BUNNY_PULL_ZONE_ID='...' \
+  -a <app-name>
+```
+
+For non-interactive deploys, create an app-scoped deploy token:
+
+```bash
+fly tokens create deploy --app <app-name>
+```
+
+### 5. Deploy
+
+Locally, from the private repo:
+
+```bash
+fly deploy -c fly.mariadb.toml
+fly deploy -c fly.toml
+```
+
+You can also connect the private repo to the app in the Fly dashboard and
+deploy from there. No GitHub Actions or other CI is required.
+
+### 6. First run
+
+With `AUTO_INSTALL=1`, the first boot seeds the database:
+
+```text
+https://<your-domain>/ndxzstudio/
+```
+
+Change the default password immediately.
+
 ## Bunny.net
 
 Bunny.net is a **pull** CDN, so there is no upload step: it pulls assets from

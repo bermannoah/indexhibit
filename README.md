@@ -132,6 +132,9 @@ https://example.com/ndxzstudio/
 
 Change the default password immediately.
 
+Deploying from a private mirror of this repo? See
+[docs/DEPLOY.md](docs/DEPLOY.md#deploying-from-a-private-repository).
+
 ---
 
 ## Bunny.net CDN
