@@ -612,6 +612,12 @@ function ndxz_esc($s)
 	return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8');
 }
 
+// Whitelist the tag method values ('exh' or 'img').
+function ndxz_tag_method($value)
+{
+	return ($value === 'img') ? 'img' : 'exh';
+}
+
 // ----------------------------------------------------------------
 // Password hashing + login-token helpers
 // ----------------------------------------------------------------

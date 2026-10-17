@@ -20,6 +20,8 @@ class Jxs_ndxzbox
 
 		$media_id = (isset($_POST['i'])) ? (int) $_POST['i'] : 0;
 
+		# reason: value is an int cast or escaped via the Db helper before interpolation
+		# nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string
 		$this->rs = $OBJ->db->fetchRecord("SELECT * FROM ".PX."objects, ".PX."media 
 			WHERE media_id = '$media_id' 
 			AND media_ref_id = id");

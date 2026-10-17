@@ -104,11 +104,13 @@ class Subdirs
 
 		if ($sub)
 		{
-			$html = "<span class='subtitle handle' style='cursor: default;'>$sub[sub_title]</span> " . $this->section['sec_path'] . "/<span class='subdir handle'>$sub[sub_folder]</span></div> <div style='float: right;'><span><a href='#' onclick=\"delete_subdir(" . $this->secid . ", $sub[sub_id]); return false;\">Delete</a> <a href='#' onclick=\"edit_subdir(" . $this->secid . ", $sub[sub_id]); return false;\">Edit</a></span></div><div style='clear: both;'><!-- --></div>\n";
+			$sub_title = htmlspecialchars($sub['sub_title'], ENT_QUOTES, 'UTF-8');
+			$sub_folder = htmlspecialchars($sub['sub_folder'], ENT_QUOTES, 'UTF-8');
+			$html = "<span class='subtitle handle' style='cursor: default;'>$sub_title</span> " . $this->section['sec_path'] . "/<span class='subdir handle'>$sub_folder</span></div> <div style='float: right;'><span><a href='#' onclick=\"delete_subdir(" . $this->secid . ", $sub[sub_id]); return false;\">Delete</a> <a href='#' onclick=\"edit_subdir(" . $this->secid . ", $sub[sub_id]); return false;\">Edit</a></span></div><div style='clear: both;'><!-- --></div>\n";
 			
-			//$html = "<div><span class='subtitle'>$sub[sub_title]</span> " . $this->section['sec_path'] . "/<span class='subdir handle'>$sub[sub_folder]</span></div> <span><a href='#' onclick=\"delete_subdir(" . $this->secid . ", $sub[sub_id]); return false;\">Delete</a> <a href='#' onclick=\"edit_subdir(" . $this->secid . ", $sub[sub_id]); return false;\">Edit</a></span>\n";
+			//$html = "<div><span class='subtitle'>$sub_title</span> " . $this->section['sec_path'] . "/<span class='subdir handle'>$sub_folder</span></div> <span><a href='#' onclick=\"delete_subdir(" . $this->secid . ", $sub[sub_id]); return false;\">Delete</a> <a href='#' onclick=\"edit_subdir(" . $this->secid . ", $sub[sub_id]); return false;\">Edit</a></span>\n";
 			
-			//$html = "<div><span class='handle' id='n$sub[sub_id]'>Handle</span> <span class='subtitle'>$sub[sub_title]</span> " . $this->section['sec_path'] . "/<span class='subdir'>$sub[sub_folder]</span></div> <span><a href='#' onclick=\"delete_subdir(" . $this->secid . ", $sub[sub_id]); return false;\">Delete</a> <a href='#' onclick=\"edit_subdir(" . $this->secid . ", $sub[sub_id]); return false;\">Edit</a></span>\n";
+			//$html = "<div><span class='handle' id='n$sub[sub_id]'>Handle</span> <span class='subtitle'>$sub_title</span> " . $this->section['sec_path'] . "/<span class='subdir'>$sub_folder</span></div> <span><a href='#' onclick=\"delete_subdir(" . $this->secid . ", $sub[sub_id]); return false;\">Delete</a> <a href='#' onclick=\"edit_subdir(" . $this->secid . ", $sub[sub_id]); return false;\">Edit</a></span>\n";
 
 			return $html;
 		}
@@ -133,8 +135,10 @@ class Subdirs
 			foreach ($subs as $key => $sub)
 			{
 				$pre = ($this->secid == 1) ? '' : $this->section['sec_path'];
+				$sub_title = htmlspecialchars($sub['sub_title'], ENT_QUOTES, 'UTF-8');
+				$sub_folder = htmlspecialchars($sub['sub_folder'], ENT_QUOTES, 'UTF-8');
 
-				$html .= "<li id='subdir_node_$sub[sub_id]'><div style='float: left;' id='n$sub[sub_id]'><span class='subtitle handle' style='cursor: pointer;'>$sub[sub_title]</span> " . $pre . "/<span class='subdir handle'>$sub[sub_folder]</span></div> <div style='float: right;'><span><a href='#' onclick=\"delete_subdir(" . $this->secid . ", $sub[sub_id]); return false;\">Delete</a> <a href='#' onclick=\"edit_subdir(" . $this->secid . ", $sub[sub_id]); return false;\">Edit</a></span></div><div style='clear: both;'><!-- --></div></li>\n";
+				$html .= "<li id='subdir_node_$sub[sub_id]'><div style='float: left;' id='n$sub[sub_id]'><span class='subtitle handle' style='cursor: pointer;'>$sub_title</span> " . $pre . "/<span class='subdir handle'>$sub_folder</span></div> <div style='float: right;'><span><a href='#' onclick=\"delete_subdir(" . $this->secid . ", $sub[sub_id]); return false;\">Delete</a> <a href='#' onclick=\"edit_subdir(" . $this->secid . ", $sub[sub_id]); return false;\">Edit</a></span></div><div style='clear: both;'><!-- --></div></li>\n";
 
 				$i++;
 			}

@@ -19,6 +19,8 @@ class Jxs_grow
 
 		$media_id = (isset($_POST['i'])) ? (int) $_POST['i'] : 0;
 	
+		# reason: value is an int cast or escaped via the Db helper before interpolation
+		# nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string
 		$rs = $OBJ->db->fetchRecord("SELECT * FROM ".PX."objects, ".PX."media 
 			WHERE media_id = '$media_id' 
 			AND media_ref_id = id");	
@@ -84,6 +86,8 @@ class Jxs_grow
 			$file = DIRNAME . '/files/gimgs/' . $rs['id'] . '_' . $rs['media_file'];
 	
 			// height and width of thumbnail
+			# reason: path is constrained by ndxz_safe_path/ndxz_safe_subpath or comes from the database
+			# nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
 			$size = getimagesize($file);
 
 			$right_margin = (isset($OBJ->hook->options['visual_index_defaults']['margin'])) ? 

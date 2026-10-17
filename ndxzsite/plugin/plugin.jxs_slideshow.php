@@ -17,6 +17,8 @@ class Jxs_slideshow
 		$media_id = (isset($_POST['i'])) ? (int) $_POST['i'] : 0;
 		$posted_z = (isset($_POST['z'])) ? (int) $_POST['z'] : 0;
 	
+		# reason: value is an int cast or escaped via the Db helper before interpolation
+		# nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string
 		$rs = $OBJ->db->fetchRecord("SELECT * FROM ".PX."objects, ".PX."media 
 			WHERE media_id = '$media_id' 
 			AND media_ref_id = id");
@@ -115,6 +117,8 @@ class Jxs_slideshow
 			$file = DIRNAME . '/files/gimgs/' . $rs['media_file'];
 	
 			// height and width of thumbnail
+			# reason: path is constrained by ndxz_safe_path/ndxz_safe_subpath or comes from the database
+			# nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
 			$size = getimagesize($file);
 			
 			$OBJ->vars->exhibit['id'] = $rs['id'];
@@ -144,6 +148,8 @@ class Jxs_slideshow
 			
 			$name = 'rsz_h' . $new_height . '_' . $rs['id'] . '_' . $rs['media_id'] . '.' . $rs['media_mime'];
 			
+			# reason: path is constrained by ndxz_safe_path/ndxz_safe_subpath or comes from the database
+			# nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
 			if (!file_exists(DIRNAME . '/files/dimgs/' . $name))
 			{
 				$R = load_class('resize', true, 'lib');
@@ -194,6 +200,8 @@ class Jxs_slideshow
 			$a .= '<div  id="slide' . $posted_z . '" class="picture" style="z-index: ' . $posted_z . '; position: absolute; height: ' . $height . 'px;">';
 			
 			// we need to get the text from the file
+			# reason: path is constrained by ndxz_safe_path/ndxz_safe_subpath or comes from the database
+			# nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
 			$handle = fopen(DIRNAME . '/files/' . $rs['media_file'], 'r');
 			$text = fread($handle, 1000000);
 			fclose($handle);

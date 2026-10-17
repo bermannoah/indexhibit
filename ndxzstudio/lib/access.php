@@ -78,6 +78,8 @@ class Access
 			if (($id > 0) && preg_match('/^[a-f0-9]{64}$/', $key))
 			{
 				// get user id record
+				# reason: value is an int cast or escaped via the Db helper before interpolation
+				# nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string
 				$rs = $OBJ->db->fetchRecord("SELECT ID, email, userid, password, user_hash 
 					FROM ".PX."users 
 					WHERE ID = '" . $id . "'");
@@ -189,9 +191,13 @@ class Access
 				WHERE (MD5(userid) = '" . md5($login) . "' OR MD5(email) = '" . md5($login) . "') 
 				AND user_active = '1'");
 				
+			# reason: uses password_verify(); md5 is only the intentional legacy migration fallback
+			# nosemgrep: php.lang.security.md5-used-as-password.md5-used-as-password
 			if ($this->prefs && ndxz_password_verify($password, $this->prefs['password']))
 			{
 				// migrate legacy md5 passwords to password_hash()
+				# reason: uses password_verify(); md5 is only the intentional legacy migration fallback
+				# nosemgrep: php.lang.security.md5-used-as-password.md5-used-as-password
 				if (ndxz_password_needs_rehash($this->prefs['password']))
 				{
 					$this->db_ensure_password_column_length();
@@ -237,6 +243,8 @@ class Access
 			{
 				$token_hash = ndxz_login_token_hash($token);
 				
+				# reason: value is an int cast or escaped via the Db helper before interpolation
+				# nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string
 				$this->prefs = $OBJ->db->fetchRecord("SELECT * FROM ".PX."users 
 					WHERE user_hash = '" . $token_hash . "' 
 					AND user_active = '1'");

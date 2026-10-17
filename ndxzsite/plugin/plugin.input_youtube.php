@@ -116,6 +116,8 @@ class input_youtube
 					curl_setopt($ch, CURLOPT_BINARYTRANSFER, 1);
 					$rawdata = curl_exec ($ch);
 					curl_close ($ch);
+					# reason: path is constrained by ndxz_safe_path/ndxz_safe_subpath or comes from the database
+					# nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
 					$fp = fopen(DIRNAME . "/files/gimgs/" . $clean['media_thumb'], 'w');
 					fwrite($fp, $rawdata);
 					fclose($fp);

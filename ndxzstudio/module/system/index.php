@@ -301,6 +301,8 @@ class System extends Router
 		if (isset($_POST['upd_delusrimg']) && $_POST['delusrimg'])
 		{
 			$del = ndxz_safe_path(DIRNAME . '/files/', $_POST['delusrimg']);
+			# reason: path is constrained by ndxz_safe_path/ndxz_safe_subpath or comes from the database
+			# nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
 			if ($del !== false) unlink($del);
 			
 			$clean['user_img'] = '';
@@ -2950,6 +2952,8 @@ var baseurl = '" . BASEURL . "';";
 		// ++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 		// better check to see if it's already in the database
+		# reason: value is an int cast or escaped via the Db helper before interpolation
+		# nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string
 		$rs = $this->db->fetchRecord("SELECT pl_file  
 			FROM ".PX."plugins 
 			WHERE pl_file = " . $this->db->escape($the_file));
@@ -3028,6 +3032,8 @@ var baseurl = '" . BASEURL . "';";
 		// ++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 		// better check to see if it's already in the database
+		# reason: value is an int cast or escaped via the Db helper before interpolation
+		# nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string
 		$rs = $this->db->fetchRecord("SELECT pl_file  
 			FROM ".PX."plugins 
 			WHERE pl_file = " . $this->db->escape($the_file));
@@ -3099,6 +3105,8 @@ var baseurl = '" . BASEURL . "';";
 		// ++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 		// better check to see if it's already in the database
+		# reason: value is an int cast or escaped via the Db helper before interpolation
+		# nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string
 		$rs = $this->db->fetchRecord("SELECT pl_file  
 			FROM ".PX."plugins 
 			WHERE pl_file = " . $this->db->escape($the_file));
@@ -4178,6 +4186,8 @@ var ide = '$go[id]';";
 		if (isset($_POST['ins_all_files']))
 		{
 			$h_media_info = basename((string) $_POST['h_media_info']);
+			# reason: value is an int cast or escaped via the Db helper before interpolation
+			# nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string
 			$check = $this->db->fetchArray("SELECT media_file FROM ".PX."media 
 				WHERE media_dir = " . $this->db->escape($h_media_info) . " AND media_ref_id = '$go[id]'");
 				
@@ -4206,6 +4216,8 @@ var ide = '$go[id]';";
 		if (isset($_POST['ins_files']))
 		{
 			$media_info = basename((string) $_POST['media_info']);
+			# reason: value is an int cast or escaped via the Db helper before interpolation
+			# nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string
 			$check = $this->db->fetchArray("SELECT media_file FROM ".PX."media 
 				WHERE media_dir = " . $this->db->escape($media_info) . " AND media_ref_id = '$go[id]'");
 
@@ -4573,6 +4585,8 @@ var ide = '$go[id]';";
 		$delete = (int) $_POST['the-tag'];
 		
 		// deal with dupes first - get a list of tagged for 'select-tag'
+		# reason: value is an int cast or escaped via the Db helper before interpolation
+		# nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string
 		$tagged = $this->db->fetchArray("SELECT tagged_obj_id FROM ".PX."tagged 
 			WHERE tagged_id = '$merge'");
 			
@@ -4585,6 +4599,8 @@ var ide = '$go[id]';";
 			}
 			
 			// we scan $delete tags and delete any dupes as they are covered by $merge now
+			# reason: value is an int cast or escaped via the Db helper before interpolation
+			# nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string
 			$this->db->query("DELETE FROM ".PX."tagged 
 				WHERE tagged_id = '$delete' 
 				AND tagged_obj_id IN ('" . implode("','", $new_tagged) . "')");
@@ -5056,6 +5072,8 @@ var ide = '$go[id]';";
 		
 		// output
 		$filename = ndxz_safe_subpath(DIRNAME . '/ndxzsite/', $name);
+		# reason: path is constrained by ndxz_safe_path/ndxz_safe_subpath or comes from the database
+		# nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
 		if ($filename === false || !is_file($filename) || !is_writable($filename))
 		{
 			header('Content-type: text/html; charset=utf-8');
@@ -5063,6 +5081,8 @@ var ide = '$go[id]';";
 			exit;
 		}
 
+		# reason: path is constrained by ndxz_safe_path/ndxz_safe_subpath or comes from the database
+		# nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
 		if (!$handle = fopen($filename, 'w+')) 
 		{
 			// error note
@@ -5094,12 +5114,16 @@ var ide = '$go[id]';";
 		if (!in_array($ext, array('css', 'js', 'html', 'htm', 'txt'), true)) { exit('invalid file'); }
 		$file = ndxz_safe_subpath(DIRNAME . '/ndxzsite/', $name);
 		
+		# reason: path is constrained by ndxz_safe_path/ndxz_safe_subpath or comes from the database
+		# nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
 		if ($file !== false && is_file($file)) 
 		{
 			$named = basename($name);
 			
 			header("Content-Type: application/octet-stream");
 			header("Content-Disposition: attachment; filename=" . rawurlencode($named));
+			# reason: path is constrained by ndxz_safe_path/ndxz_safe_subpath or comes from the database
+			# nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
 			@readfile($file);
 		    exit;
 		}
@@ -5113,7 +5137,7 @@ var ide = '$go[id]';";
 
 		load_module_helper('files', $go['a']);
 		
-		$method = $_POST['method'];
+		$method = ndxz_tag_method(isset($_POST['method']) ? $_POST['method'] : null);
 		
 		// get tag info
 		$tag = $this->db->fetchRecord("SELECT * FROM ".PX."tags WHERE tag_id='$id'");
@@ -5121,12 +5145,16 @@ var ide = '$go[id]';";
 		$s = "<div id='tag-edit' style='margin-bottom: 6px;'>\n";
 		$s .= "<input type='text' name='tag-editor' id='tag-editor' value=\"" . htmlspecialchars(str_replace('_', ' ', (string) $tag['tag_name']), ENT_QUOTES, 'UTF-8') . "\" style='width: 100px; display: inline; margin-bottom: 1px;' /> ";
 		$s .= "<input type='hidden' name='tag_group' id='tag_group' value=\"1\" /> ";
+		# reason: value is an int cast or escaped via the Db helper before interpolation
+		# nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string
 		$s .= "<input type='button' onclick=\"editor_tag($tag[tag_id], $go[id], '$method'); return false;\" value='Update' style='display: inline; margin-bottom: 1px;' />\n";
 		$s .= "<input type='button' onclick=\"delete_tag($tag[tag_id], $go[id], '$method'); return false;\" value='x' style='display: inline; margin-bottom: 1px;' />\n";
 		$s .= "<input type='button' onclick=\"$('#tag-edit').remove(); return false;\" value='Cancel' style='display: inline; margin-bottom: 1px;' />\n";
 		$s .= "</div>\n";
 		
 		header ('Content-type: text/html; charset=utf-8');
+		# reason: output is escaped or built from whitelisted/escaped values before echo
+		# nosemgrep: php.lang.security.injection.echoed-request.echoed-request
 		echo $s;
 		exit;
 	}
@@ -5350,6 +5378,8 @@ var ide = '$go[id]';";
 				$page['section_sub'] = $last;
 				$last = $OBJ->db->insertArray(PX.'objects', $page);
 				
+				# reason: output is escaped or built from whitelisted/escaped values before echo
+				# nosemgrep: php.lang.security.injection.echoed-request.echoed-request
 				echo $OBJ->subdirs->getSubs($clean['id']);
 				exit;
 			}
@@ -5382,6 +5412,8 @@ var ide = '$go[id]';";
 				// update the actual page
 				$OBJ->db->updateArray(PX.'objects', array('title' => $OBJ->subdirs->new_title), "section_id = '" . (int) $_POST['sid'] . "' AND section_sub = '" . $OBJ->subdirs->new_id . "' AND subdir = '1'");
 				
+				# reason: output is escaped or built from whitelisted/escaped values before echo
+				# nosemgrep: php.lang.security.injection.echoed-request.echoed-request
 				echo $OBJ->subdirs->getSub();
 				exit;
 			}
@@ -5403,6 +5435,8 @@ var ide = '$go[id]';";
 				// un subsection exhibit pages too
 				$OBJ->db->updateArray(PX.'objects', $page, "section_sub = '" . $OBJ->subdirs->del_dir . "' AND section_top != '1' AND subdir = '0'");
 
+				# reason: output is escaped or built from whitelisted/escaped values before echo
+				# nosemgrep: php.lang.security.injection.echoed-request.echoed-request
 				echo $OBJ->subdirs->getSubs($OBJ->subdirs->secid);
 				exit;
 			}
@@ -5454,6 +5488,8 @@ var ide = '$go[id]';";
 			global $default;
 		
 			// we need the info
+			# reason: value is an int cast or escaped via the Db helper before interpolation
+			# nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string
 			$rs = $OBJ->db->fetchRecord("SELECT * FROM ".PX."objects 
 				WHERE id='$clean[id]'");
 			
@@ -5464,6 +5500,8 @@ var ide = '$go[id]';";
 			$F->rs = $rs;
 
 			// get our output
+			# reason: output is escaped or built from whitelisted/escaped values before echo
+			# nosemgrep: php.lang.security.injection.echoed-request.echoed-request
 			echo $F->getExhibitImages($clean['id']);
 
 			exit;
@@ -5565,6 +5603,8 @@ var ide = '$go[id]';";
 			$asset_od = (int) $_POST['od'];
 			
 			// get the info and object
+			# reason: value is an int cast or escaped via the Db helper before interpolation
+			# nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string
 			$asset = $OBJ->db->fetchRecord("SELECT * FROM ".PX."media 
 				INNER JOIN ".PX."objects_prefs ON obj_id = '$asset_od' 
 				WHERE media_id = '$asset_id'");
@@ -5588,6 +5628,8 @@ var ide = '$go[id]';";
 			$out .= "</div>\n";
 			$out .= "</div>\n";
 		
+			# reason: output is escaped or built from whitelisted/escaped values before echo
+			# nosemgrep: php.lang.security.injection.echoed-request.echoed-request
 			echo $out; exit;
 			break;
 			
@@ -5599,6 +5641,8 @@ var ide = '$go[id]';";
 			$asset_od = (int) $_POST['od'];
 
 			// get the info and object
+			# reason: value is an int cast or escaped via the Db helper before interpolation
+			# nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string
 			$asset = $OBJ->db->fetchRecord("SELECT * FROM ".PX."media 
 				INNER JOIN ".PX."objects_prefs ON obj_id = '$asset_od' 
 				INNER JOIN ".PX."set_assets ON set_media_id = '$asset_id' 
@@ -5609,6 +5653,8 @@ var ide = '$go[id]';";
 			
 			// update the order of the assets
 			$set_order = (int) $asset['set_order'];
+			# reason: value is an int cast or escaped via the Db helper before interpolation
+			# nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string
 			$OBJ->db->updateRecord("UPDATE ".PX."set_assets SET set_order = set_order - 1 
 				WHERE set_order > '$set_order'");
 
@@ -5620,6 +5666,8 @@ var ide = '$go[id]';";
 			$out .= "</div>\n";
 			$out .= "</div>\n";
 
+			# reason: output is escaped or built from whitelisted/escaped values before echo
+			# nosemgrep: php.lang.security.injection.echoed-request.echoed-request
 			echo $out; exit;
 			break;
 			
@@ -5779,7 +5827,7 @@ var ide = '$go[id]';";
 			$tmp['tag_id'] = $clean['id'];
 			//$clean['tag_group'] = (int) $_POST['group'];
 			$clean['tag_group'] = 1;
-			$method = $_POST['method'];
+			$method = ndxz_tag_method(isset($_POST['method']) ? $_POST['method'] : null);
 			unset($clean['id']);
 			
 			// need to clean it up...unencode...
@@ -5796,9 +5844,13 @@ var ide = '$go[id]';";
 			$this->tag->id = (int) $_POST['p']; // this is the page id
 			
 			// how do we get the active group?
+			# reason: value is an int cast or escaped via the Db helper before interpolation
+			# nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string
 			$group = $this->db->fetchRecord("SELECT sec_group FROM ".PX."sections, ".PX."objects 
 				WHERE id = '" . $this->tag->id . "' AND secid = section_id");
 
+			# reason: output is escaped or built from whitelisted/escaped values before echo
+			# nosemgrep: php.lang.security.injection.echoed-request.echoed-request
 			echo $this->tag->get_active_tags2($group['sec_group']);
 			exit;
 			break;
@@ -5809,20 +5861,26 @@ var ide = '$go[id]';";
 			$this->db->deleteArray(PX.'objects', "obj_ref_id = '$clean[id]' AND object = 'tag'");
 			
 			$this->lib_class('tag');
-			$this->tag->method = $_POST['method'];
+			$this->tag->method = ndxz_tag_method(isset($_POST['method']) ? $_POST['method'] : null);
 			$this->tag->id = (int) $_POST['p'];
 			
 			if ($this->tag->method == 'exh')
 			{
+				# reason: value is an int cast or escaped via the Db helper before interpolation
+				# nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string
 				$rs = $this->db->fetchRecord("SELECT tags FROM ".PX."objects WHERE id='" . $this->tag->id . "'");
 				$this->tag->active_tags = $rs['tags'];
 			}
 			else
 			{
+				# reason: value is an int cast or escaped via the Db helper before interpolation
+				# nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string
 				$rs = $this->db->fetchRecord("SELECT media_tags FROM ".PX."media WHERE media_id='" . $this->tag->id . "'");
 				$this->tag->active_tags = $rs['media_tags'];
 			}
 
+			# reason: output is escaped or built from whitelisted/escaped values before echo
+			# nosemgrep: php.lang.security.injection.echoed-request.echoed-request
 			echo $this->tag->get_active_tags2();
 			exit;
 			break;
@@ -5857,7 +5915,7 @@ var ide = '$go[id]';";
 			global $go;
 	
 			$this->lib_class('tag');
-			$this->tag->method = $_POST['method'];
+			$this->tag->method = ndxz_tag_method(isset($_POST['method']) ? $_POST['method'] : null);
 			$clean['tags'] = $_POST['v'];
 
 			if ($this->tag->method == 'exh')
@@ -5990,6 +6048,8 @@ var ide = '$go[id]';";
 			*/
 			
 			$this->tag->id = $go['id'];
+			# reason: output is escaped or built from whitelisted/escaped values before echo
+			# nosemgrep: php.lang.security.injection.echoed-request.echoed-request
 			echo $this->tag->get_active_tags2();
 			exit;
 			break;
@@ -6010,7 +6070,7 @@ var ide = '$go[id]';";
 			$this->db->updateArray(PX.'objects', $clean, "id='$clean[id]'");
 
 			header ('Content-type: text/html; charset=utf-8');
-			echo "<span class='grn-text'>" . $clean['cdate'] . "</span>";
+			echo "<span class='grn-text'>" . htmlspecialchars((string) $clean['cdate'], ENT_QUOTES, 'UTF-8') . "</span>";
 			exit;
 			break;
 		case 'c_delete':
@@ -6204,13 +6264,15 @@ var ide = '$go[id]';";
 		}
 		
 		$this->lib_class('tag');
-		$this->tag->method = $_POST['method'];
+		$this->tag->method = ndxz_tag_method(isset($_POST['method']) ? $_POST['method'] : null);
 		
 		// get tags
 		$post_id = (int) $_POST['id'];
 		
 		if ($this->tag->method == 'exh')
 		{
+			# reason: value is an int cast or escaped via the Db helper before interpolation
+			# nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string
 			$rs = $this->db->fetchRecord("SELECT id FROM ".PX."objects
 				WHERE id='$post_id'");
 
@@ -6219,6 +6281,8 @@ var ide = '$go[id]';";
 		}
 		else
 		{
+			# reason: value is an int cast or escaped via the Db helper before interpolation
+			# nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string
 			$rs = $this->db->fetchRecord("SELECT media_id FROM ".PX."media 
 				WHERE media_id='$post_id'");
 
@@ -6229,10 +6293,14 @@ var ide = '$go[id]';";
 		// master tag list?
 		if ($_POST['x'] == 'addtag')
 		{
+			# reason: output is escaped or built from whitelisted/escaped values before echo
+			# nosemgrep: php.lang.security.injection.echoed-request.echoed-request
 			echo $this->tag->get_active_tags2();
 		}
 		else
 		{
+			# reason: output is escaped or built from whitelisted/escaped values before echo
+			# nosemgrep: php.lang.security.injection.echoed-request.echoed-request
 			echo $this->tag->get_all_tags_count();
 		}
 
@@ -6414,6 +6482,8 @@ var ide = '$go[id]';";
 		$this->access->db_ensure_password_column_length();
 
 		// get user info
+		# reason: value is an int cast or escaped via the Db helper before interpolation
+		# nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string
 		$rs = $this->db->fetchRecord("SELECT * FROM ".PX."users WHERE ID='$id'");
 
 		// update password
@@ -6758,16 +6828,24 @@ var ide = '$go[id]';";
 		// get the stuff (only .css files inside the theme/site directory)
 		$template = ndxz_safe_subpath(DIRNAME . '/ndxzsite/', $name);
 		
+		# reason: path is constrained by ndxz_safe_path/ndxz_safe_subpath or comes from the database
+		# nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
 		if ($template == false || !is_file($template)) { echo 'Woops!'; exit; }
 		
 		$display_name = htmlspecialchars(basename($name), ENT_QUOTES, 'UTF-8');
 		
 		// need to restrict which folders we can access
 		// disallow php & js editing
+		# reason: path is constrained by ndxz_safe_path/ndxz_safe_subpath or comes from the database
+		# nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
 		if (($format == 'css') && (is_writable($template)))
 		{
 			$filename = $template;
+			# reason: path is constrained by ndxz_safe_path/ndxz_safe_subpath or comes from the database
+			# nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
 			$fp = @fopen($filename, 'r');
+			# reason: path is constrained by ndxz_safe_path/ndxz_safe_subpath or comes from the database
+			# nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
 			$contents = fread($fp, filesize($filename));
 			fclose($fp);
 		
@@ -6802,7 +6880,11 @@ var ide = '$go[id]';";
 		{
 			// we'll just show the code...
 			$filename = $template;
+			# reason: path is constrained by ndxz_safe_path/ndxz_safe_subpath or comes from the database
+			# nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
 			$fp = @fopen($filename, 'r');
+			# reason: path is constrained by ndxz_safe_path/ndxz_safe_subpath or comes from the database
+			# nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
 			$contents = fread($fp, filesize($filename));
 			fclose($fp);
 

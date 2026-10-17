@@ -79,7 +79,7 @@ class Tag
 			
 				$body .= "<div style='float: left; width: 170px; height: 21px;'>";
 				//$body .= "<a href='?a=system&q=edittags&id=$tag[tag_id]' rel=\"facebox;width=900;height=550;modal=true\" title='Edit'>+</a>&nbsp;";
-				$body .= "<a href='?a=system&q=showtag&id=$tag[tag_id]' rel=\"facebox;width=900;height=550;modal=true\">" . $tag['tag_name'] . " ($count)</a>";
+				$body .= "<a href='?a=system&q=showtag&id=$tag[tag_id]' rel=\"facebox;width=900;height=550;modal=true\">" . htmlspecialchars($tag['tag_name'], ENT_QUOTES, 'UTF-8') . " ($count)</a>";
 				$body .= "</div>";
 			}
 		
@@ -111,6 +111,7 @@ class Tag
 		{
 			foreach ($tags as $key => $tag)
 			{
+				$tag_color = htmlspecialchars($tag['tag_name'], ENT_QUOTES, 'UTF-8');
 				if ($tag['tag_group'] != $group) $out .= br(2);
 
 				if (preg_match("/^#/", $tag['tag_name'])) // colored tag
@@ -121,7 +122,7 @@ class Tag
 					
 					$yep = "<a href='#' onclick=\"upd_tags($tag[tag_id], '" . $this->method . "'); return false;\" id='tag$tag[tag_id]' style='text-decoration: none; color: red;' title='Edit Tag'>&nbsp;&nbsp;&nbsp;&nbsp;</a>";
 
-					$out .= span($edit . $yep, "$class style='background: $tag[tag_name];'" . " id='tag$tag[tag_id]'") . ' ';
+					$out .= span($edit . $yep, "$class style='background: $tag_color;'" . " id='tag$tag[tag_id]'") . ' ';
 				}
 				else
 				{
@@ -129,7 +130,7 @@ class Tag
 				
 					$edit = "<a href='#' onclick=\"edit_tag($tag[tag_id], '" . $this->method . "'); return false;\" id='tag$tag[tag_id]' style='text-decoration: none; color: red; font-weight: bold;' title='Edit Tag'>+</a>&nbsp;";
 					
-					$yep = "<a href='#' onclick=\"upd_tags($tag[tag_id], '" . $this->method . "'); return false;\" style='text-decoration: none;' title='Use Tag'>" . str_replace('_', '&nbsp;', $tag['tag_name']) . "</a>";
+					$yep = "<a href='#' onclick=\"upd_tags($tag[tag_id], '" . $this->method . "'); return false;\" style='text-decoration: none;' title='Use Tag'>" . str_replace('_', '&nbsp;', htmlspecialchars($tag['tag_name'], ENT_QUOTES, 'UTF-8')) . "</a>";
 					
 					$out .= span($edit . $yep, $class . " id='tag$tag[tag_id]'") . ' ';
 				}
@@ -151,12 +152,12 @@ class Tag
 			
 		$activ = $OBJ->db->fetchArray("SELECT tagged_id FROM ".PX."tagged 
 			WHERE tagged_obj_id='$this->id' 
-			AND tagged_object = '$this->method'");
+			AND tagged_object = '" . ndxz_tag_method($this->method) . "'");
 
 		/*
 		echo "SELECT tagged_id FROM ".PX."tagged 
 			WHERE tagged_obj_id='$this->id' 
-			AND tagged_object = '$this->method'"; exit;
+			AND tagged_object = '" . ndxz_tag_method($this->method) . "'"; exit;
 		*/
 
 		if ($activ)
@@ -181,6 +182,7 @@ class Tag
 		{
 			foreach ($tags as $key => $tag)
 			{
+				$tag_color = htmlspecialchars($tag['tag_name'], ENT_QUOTES, 'UTF-8');
 				if (preg_match("/^#/", $tag['tag_name'])) // colored tag
 				{
 					$class = (in_array($tag['tag_id'], $active)) ? " class='active'": " class='inactive'";
@@ -197,7 +199,7 @@ class Tag
 				
 					//$edit = "<a href='#' onclick=\"edit_tag($tag[tag_id], '" . $this->method . "'); return false;\" id='tag$tag[tag_id]' style='text-decoration: none; color: red; font-weight: bold;' title='Edit Tag'>+</a>&nbsp;";
 					
-					$yep = "<a href='#' onclick=\"upd_tags($tag[tag_id], '" . $this->method . "'); return false;\" style='text-decoration: none;' title='Use Tag'>" . str_replace('_', '&nbsp;', $tag['tag_name']) . "</a>";
+					$yep = "<a href='#' onclick=\"upd_tags($tag[tag_id], '" . $this->method . "'); return false;\" style='text-decoration: none;' title='Use Tag'>" . str_replace('_', '&nbsp;', htmlspecialchars($tag['tag_name'], ENT_QUOTES, 'UTF-8')) . "</a>";
 					
 					//$out .= span($edit . $yep, $class . " id='tag$tag[tag_id]'") . ' ';
 					
@@ -241,15 +243,16 @@ class Tag
 		{
 			foreach ($tags as $key => $tag)
 			{
+				$tag_color = htmlspecialchars($tag['tag_name'], ENT_QUOTES, 'UTF-8');
 				if (in_array($tag['tag_id'], $active))
 				{
 					if (preg_match("/^#/", $tag['tag_name'])) // colored tag
 					{
-						$out .= span('&nbsp;&nbsp;&nbsp;&nbsp;', "id='tag$tag[tag_id]' class='active'  style='font-size: 9px; background: $tag[tag_name]; border: 1px solid $tag[tag_name];'") . ' ';
+						$out .= span('&nbsp;&nbsp;&nbsp;&nbsp;', "id='tag$tag[tag_id]' class='active'  style='font-size: 9px; background: $tag_color; border: 1px solid $tag_color;'") . ' ';
 					}
 					else
 					{
-						$out .= span(str_replace('_', '&nbsp;', $tag['tag_name']), "id='tag$tag[tag_id]' class='active'  style='font-size: 9px;'") . ' ';
+						$out .= span(str_replace('_', '&nbsp;', htmlspecialchars($tag['tag_name'], ENT_QUOTES, 'UTF-8')), "id='tag$tag[tag_id]' class='active'  style='font-size: 9px;'") . ' ';
 					}
 				}
 			}
@@ -272,7 +275,7 @@ class Tag
 		
 		$activ = $OBJ->db->fetchArray("SELECT tagged_id FROM ".PX."tagged 
 			WHERE tagged_obj_id = '$this->id' 
-			AND tagged_object = '$this->method'");
+			AND tagged_object = '" . ndxz_tag_method($this->method) . "'");
 		
 		if ($activ)
 		{
@@ -290,15 +293,16 @@ class Tag
 		{
 			foreach ($tags as $key => $tag)
 			{
+				$tag_color = htmlspecialchars($tag['tag_name'], ENT_QUOTES, 'UTF-8');
 				if (in_array($tag['tag_id'], $active))
 				{
 					if (preg_match("/^#/", $tag['tag_name'])) // colored tag
 					{
-						$out .= span('&nbsp;&nbsp;&nbsp;&nbsp;', "id='tag$tag[tag_id]' class='active'  style='font-size: 9px; background: $tag[tag_name]; border: 1px solid $tag[tag_name];'") . ' ';
+						$out .= span('&nbsp;&nbsp;&nbsp;&nbsp;', "id='tag$tag[tag_id]' class='active'  style='font-size: 9px; background: $tag_color; border: 1px solid $tag_color;'") . ' ';
 					}
 					else
 					{
-						$out .= span(str_replace('_', '&nbsp;', $tag['tag_name']), "id='tag$tag[tag_id]' class='active'  style='font-size: 9px;'") . ' ';
+						$out .= span(str_replace('_', '&nbsp;', htmlspecialchars($tag['tag_name'], ENT_QUOTES, 'UTF-8')), "id='tag$tag[tag_id]' class='active'  style='font-size: 9px;'") . ' ';
 					}
 				}
 			}
@@ -326,6 +330,7 @@ class Tag
 		{
 			foreach ($tags as $key => $tag)
 			{
+				$tag_color = htmlspecialchars($tag['tag_name'], ENT_QUOTES, 'UTF-8');
 				if ($tag['tag_group'] != $group) $out .= br(2);
 
 				if (preg_match("/^#/", $tag['tag_name'])) // colored tag
@@ -336,7 +341,7 @@ class Tag
 					
 					$yep = "<a href='#' onclick=\"upd_tags($tag[tag_id], '" . $this->method . "'); return false;\" id='tag$tag[tag_id]' style='text-decoration: none; color: red;' title='Edit Tag'>&nbsp;&nbsp;&nbsp;&nbsp;</a>";
 
-					$out .= span($edit . $yep, "$class style='background: $tag[tag_name];'" . " id='tag$tag[tag_id]'") . ' ';
+					$out .= span($edit . $yep, "$class style='background: $tag_color;'" . " id='tag$tag[tag_id]'") . ' ';
 				}
 				else
 				{
@@ -344,7 +349,7 @@ class Tag
 				
 					$edit = "<a href='#' onclick=\"edit_tag($tag[tag_id], '" . $this->method . "'); return false;\" id='tag$tag[tag_id]' style='text-decoration: none; color: red; font-weight: bold;' title='Edit Tag'>+</a>&nbsp;";
 					
-					$yep = "<a href='#' onclick=\"upd_tags($tag[tag_id], '" . $this->method . "'); return false;\" style='text-decoration: none;' title='Use Tag'>" . str_replace('_', '&nbsp;', $tag['tag_name']) . "</a>";
+					$yep = "<a href='#' onclick=\"upd_tags($tag[tag_id], '" . $this->method . "'); return false;\" style='text-decoration: none;' title='Use Tag'>" . str_replace('_', '&nbsp;', htmlspecialchars($tag['tag_name'], ENT_QUOTES, 'UTF-8')) . "</a>";
 					
 					$out .= span($edit . $yep, $class . " id='tag$tag[tag_id]'") . ' ';
 				}
