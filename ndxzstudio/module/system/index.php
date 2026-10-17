@@ -303,6 +303,7 @@ class System extends Router
 			$del = ndxz_safe_path(DIRNAME . '/files/', $_POST['delusrimg']);
 			# reason: path is constrained by ndxz_safe_path/ndxz_safe_subpath or comes from the database
 			# nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
+			if ($del !== false && class_exists('Storage')) Storage::delete($del);
 			if ($del !== false) unlink($del);
 			
 			$clean['user_img'] = '';
@@ -4411,6 +4412,8 @@ var ide = '$go[id]';";
 			
 			if ($file)
 			{
+				if (class_exists('Storage')) Storage::delete(DIRNAME . '/files/' . $file['media_file']);
+
 				if (file_exists(DIRNAME . '/files/' . $file['media_file']))
 				{
 					unlink(DIRNAME . '/files/' . $file['media_file']);
@@ -6964,6 +6967,7 @@ var ide = '$go[id]';";
 						// if uploaded we can work with it
 						if (move_uploaded_file($_FILES['filename']['tmp_name'][$i], $IMG->path.'/'.$IMG->filename)) 
 						{
+							if (class_exists('Storage')) Storage::put($IMG->path . '/' . $IMG->filename);
 							$clean['media_id'] 	= 'NULL';
 							$clean['media_file'] = $IMG->filename;
 							$clean['media_uploaded'] = getNow();

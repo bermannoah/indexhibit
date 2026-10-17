@@ -73,6 +73,10 @@ else
 	define('BASEURL', preg_replace("/\/$/i", '', $base)); // no trailing slashes
 }
 
+// Public base for uploaded media. Falls back to the site base so local/
+// non-CDN installs behave exactly as before.
+define('MEDIA_BASE', (defined('MEDIA_URL_SETTING') && MEDIA_URL_SETTING !== '') ? MEDIA_URL_SETTING : BASEURL);
+
 // Add default types for files, images and movies upload
 // if we add new 'media' we need to update modedit.js
 $default['images'] 	= array('jpg', 'gif', 'png', 'jpeg');
@@ -104,3 +108,6 @@ $default['operands'] = array(0 => 'default', 1 => 'permalinked', 2 => 'overlay',
 $default['parse'] = 'parse_default';
 
 $default['image_library'] = (extension_loaded('imagick')) ? 'media_imagick' : 'media_gd';
+
+// Media storage adapter (local disk and/or Bunny Storage Zone).
+require_once dirname(__FILE__) . '/lib/storage.php';

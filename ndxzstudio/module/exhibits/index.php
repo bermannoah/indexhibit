@@ -1187,6 +1187,7 @@ var ide = '$go[id]';";
 				$safe = ndxz_safe_path(DIRNAME . '/files/', (string) $_POST['filename']);
 				# reason: path is constrained by ndxz_safe_path/ndxz_safe_subpath or comes from the database
 				# nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
+				if ($safe !== false && class_exists('Storage')) Storage::delete($safe);
 				if ($safe !== false) unlink($safe);
 			}
 			else
@@ -1527,6 +1528,8 @@ var ide = '$go[id]';";
 		
 		if ($file)
 		{
+			if (class_exists('Storage')) Storage::delete(DIRNAME . GIMGS . '/' . $file['media_file']);
+
 			if (file_exists(DIRNAME . GIMGS . '/' . $file['media_file']))
 			{
 				unlink(DIRNAME . GIMGS . '/' . $file['media_file']);
@@ -1701,6 +1704,7 @@ var ide = '$go[id]';";
 				// if uploaded we can work with it
 				if (move_uploaded_file($_FILES['jxbg']['tmp_name'], $dir . '/' . $name)) 
 				{
+					if (class_exists('Storage')) Storage::put($dir . '/' . $name);
 					$clean['bgimg'] 	= $name;
 
 					$this->db->updateArray(PX.'objects', $clean, "id='$go[id]'");
@@ -1825,6 +1829,7 @@ var ide = '$go[id]';";
 					if (move_uploaded_file($image['temp'], 
 						$IMG->path . '/' . $IMG->filename)) 
 					{
+						if (class_exists('Storage')) Storage::put($IMG->path . '/' . $IMG->filename);
 						$x++;
 					
 						$IMG->image = $IMG->path . '/' . $IMG->filename;
@@ -1947,6 +1952,8 @@ var ide = '$go[id]';";
 	
 	public function delete_image($image='')
 	{
+		if ($image && class_exists('Storage')) Storage::delete($image);
+
 		if (file_exists($image))
 		{
 			@unlink($image);

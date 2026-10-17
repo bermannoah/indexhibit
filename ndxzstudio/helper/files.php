@@ -356,6 +356,8 @@ function delete_image($file='')
 {
 	if ($file)
 	{
+		if (class_exists('Storage')) Storage::delete($file);
+
 		if (file_exists($file))
 		{
 			@unlink($file);

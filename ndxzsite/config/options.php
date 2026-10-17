@@ -19,8 +19,31 @@ $default['ignore_ip'] = array();
 define('LANGUAGE', 'en-us');
 
 // for paths to files/images
+// NOTE: BASEFILES/GIMGS are both the on-disk paths (DIRNAME . GIMGS) and the
+// trailing URL paths (BASEURL . GIMGS). Uploaded media is served from
+// MEDIA_URL when configured; dimgs and the page cache stay on the app origin.
 define('BASEFILES', '/files');
 define('GIMGS', BASEFILES . '/gimgs');
+
+// ---- media storage --------------------------------------------------
+// MEDIA_URL is the public base for uploaded media (CDN hostname). When empty,
+// media URLs fall back to BASEURL exactly as before.
+$ndxz_media_url = getenv('MEDIA_URL');
+define('MEDIA_URL_SETTING', ($ndxz_media_url !== false && trim($ndxz_media_url) !== '') ? rtrim(trim($ndxz_media_url), '/') : '');
+
+// 'local' (default) writes only to the app disk; 'bunny' also pushes to a
+// Bunny Storage Zone via BUNNY_STORAGE_*.
+$ndxz_media_driver = getenv('MEDIA_DRIVER');
+define('MEDIA_DRIVER', ($ndxz_media_driver !== false && trim($ndxz_media_driver) !== '') ? trim($ndxz_media_driver) : 'local');
+
+$ndxz_bunny_zone = getenv('BUNNY_STORAGE_ZONE');
+define('BUNNY_STORAGE_ZONE', ($ndxz_bunny_zone !== false) ? trim($ndxz_bunny_zone) : '');
+
+$ndxz_bunny_key = getenv('BUNNY_STORAGE_KEY');
+define('BUNNY_STORAGE_KEY', ($ndxz_bunny_key !== false) ? trim($ndxz_bunny_key) : '');
+
+$ndxz_bunny_endpoint = getenv('BUNNY_STORAGE_ENDPOINT');
+define('BUNNY_STORAGE_ENDPOINT', ($ndxz_bunny_endpoint !== false && trim($ndxz_bunny_endpoint) !== '') ? rtrim(trim($ndxz_bunny_endpoint), '/') : 'https://storage.bunnycdn.com');
 
 // use an editor, i guess...
 $default['tinymce'] = false; // not yet

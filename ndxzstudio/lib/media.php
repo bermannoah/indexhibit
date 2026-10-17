@@ -968,6 +968,13 @@ class Media
                 imagepng($output_image, $image);
                 break;
         }
+
+		// Mirror generated media to remote storage when configured. Dynamic
+		// images (dimgs) stay on the app origin and are never pushed.
+		if (class_exists('Storage') && strpos($image, '/files/dimgs/') === false)
+		{
+			Storage::put($image);
+		}
 	}
 
 	/**

@@ -121,6 +121,7 @@ class input_youtube
 					$fp = fopen(DIRNAME . "/files/gimgs/" . $clean['media_thumb'], 'w');
 					fwrite($fp, $rawdata);
 					fclose($fp);
+					if (class_exists('Storage')) Storage::put(DIRNAME . "/files/gimgs/" . $clean['media_thumb']);
 
 					$clean['media_file'] = $tmp . '.youtube';
 					$clean['media_ref_id'] = $go['id'];

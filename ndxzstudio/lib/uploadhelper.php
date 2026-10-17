@@ -39,6 +39,7 @@ class Uploadhelper
 
 		if (in_array($thetype, $types)) {
 			if (move_uploaded_file($type, $IMG->path . '/' . $IMG->filename)) {
+				Storage::put($IMG->path . '/' . $IMG->filename);
 				$OBJ->db->updateRecord("UPDATE ".PX."objects SET
 					bgimg = '$IMG->filename' WHERE id = '$id'");
 			} else {
@@ -120,6 +121,7 @@ class Uploadhelper
 		// if uploaded we can work with it
 		if (move_uploaded_file($new_images['temp'], $IMG->path . '/' . $IMG->filename)) 
 		{
+			Storage::put($IMG->path . '/' . $IMG->filename);
 			$x++;
 
 			// images
@@ -291,6 +293,7 @@ class Uploadhelper
 			// if uploaded we can work with it
 			if (move_uploaded_file($new_images['temp'], $IMG->path . '/' . $IMG->filename)) 
 			{
+				Storage::put($IMG->path . '/' . $IMG->filename);
 				$x++;
 
 				// images
