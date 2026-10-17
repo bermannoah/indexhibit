@@ -1,9 +1,9 @@
 # Indexhibit on PHP 8.5 / Apache
 FROM php:8.5-apache
 
-# Install the PHP extensions Indexhibit needs. mbstring and curl are already
-# compiled into the official php image, so only build the extensions it
-# doesn't ship.
+# Install the PHP extensions Indexhibit needs. mbstring, curl, and opcache
+# are already compiled into the official php image (PHP 8.5 builds OPcache in
+# unconditionally), so only build the extensions it doesn't ship.
 RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
@@ -18,8 +18,7 @@ RUN set -eux; \
         mysqli \
         pdo_mysql \
         exif \
-        intl \
-        opcache; \
+        intl; \
     rm -rf /var/lib/apt/lists/*
 
 # Apache: rewrite for the app, headers for static cache control, remoteip for proxy awareness.
