@@ -191,40 +191,249 @@ Change the default password immediately.
 
 ### 7. Alternative: thin deploy repo
 
-A thin repo keeps no app code in git. It clones upstream at deploy time and
-copies in the private Fly config:
+A thin repo keeps no app code in git. `deploy.sh` clones upstream, renders the
+Fly config from templates using environment variables, pushes the secrets, and
+deploys. Nothing app- or hostname-specific is committed.
 
 ```text
 deploy-repo/
-├── fly.toml
-├── fly.mariadb.toml
-├── deploy.sh
-└── README.md
+├── .env.example        # committed, placeholders only
+├── .env                # gitignored, your real values
+├── .gitignore
+├── deploy.sh           # committed, executable
+├── fly.toml.tmpl       # committed
+└── fly.mariadb.toml.tmpl
 ```
 
-`deploy.sh`:
+`.gitignore`:
+
+```gitignore
+.env
+```
+
+#### Setting the env vars
+
+Copy the example and fill it in. `deploy.sh` exports these, renders the
+`.toml` templates with them, and pushes them to Fly as secrets.
+
+```bash
+cp .env.example .env
+$EDITOR .env
+chmod +x deploy.sh
+./deploy.sh            # re-run after any .env change
+```
+
+`.env.example`:
+
+```bash
+# Fly
+FLY_ORG=my-org
+FLY_APP=my-site
+FLY_DB_APP=my-site-db
+FLY_REGION=ewr
+
+# Public site
+PUBLIC_URL=https://example.com
+SITE_NAME=example.com
+
+# Initial admin (used by AUTO_INSTALL on first boot)
+ADMIN_EMAIL=admin@example.com
+ADMIN_FNAME=Admin
+ADMIN_LNAME=Admin
+
+# Database (shared by both apps)
+DB_NAME=indexhibit
+DB_USER=indexhibit
+DB_PASS=change-me
+MARIADB_PASSWORD=change-me
+MARIADB_ROOT_PASSWORD=change-me-root
+
+# Media storage (optional)
+MEDIA_DRIVER=local
+MEDIA_URL=
+BUNNY_STORAGE_ZONE=
+BUNNY_STORAGE_KEY=
+BUNNY_STORAGE_ENDPOINT=https://storage.bunnycdn.com
+
+# Bunny purge (optional)
+BUNNY_API_KEY=
+BUNNY_PULL_ZONE_ID=
+
+# Upstream source
+UPSTREAM_REPO=https://github.com/<upstream-org>/indexhibit.git
+UPSTREAM_REF=main
+```
+
+The script writes `DB_*`, `BUNNY_*` and `MEDIA_*` as Fly secrets on every run,
+so `.env` is the single source of truth. Anything you set with `fly secrets
+set` by hand is overwritten on the next deploy.
+
+#### `fly.toml.tmpl`
+
+```toml
+app = "${FLY_APP}"
+primary_region = "${FLY_REGION}"
+
+[build]
+
+[http_service]
+  internal_port = 80
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 1
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
+
+[[mounts]]
+  source = "indexhibit_files"
+  destination = "/var/www/html/files"
+
+[[mounts]]
+  source = "indexhibit_config"
+  destination = "/var/www/html/ndxzsite/config"
+
+[[mounts]]
+  source = "indexhibit_cache"
+  destination = "/var/www/html/ndxzsite/cache"
+
+[env]
+  PUBLIC_URL = "${PUBLIC_URL}"
+  TRUSTED_PROXIES = "*"
+  AUTO_INSTALL = "1"
+  SITE_NAME = "${SITE_NAME}"
+  DB_PREFIX = "ndxz_"
+  ADMIN_EMAIL = "${ADMIN_EMAIL}"
+  ADMIN_FNAME = "${ADMIN_FNAME}"
+  ADMIN_LNAME = "${ADMIN_LNAME}"
+```
+
+#### `fly.mariadb.toml.tmpl`
+
+```toml
+app = "${FLY_DB_APP}"
+primary_region = "${FLY_REGION}"
+
+[build]
+  image = "mariadb:11"
+
+[[mounts]]
+  source = "mariadb_data"
+  destination = "/var/lib/mysql"
+
+[[services]]
+  protocol = "tcp"
+  internal_port = 3306
+  auto_stop_machines = "off"
+  auto_start_machines = true
+  min_machines_running = 1
+
+[env]
+  MARIADB_DATABASE = "${DB_NAME}"
+  MARIADB_USER = "${DB_USER}"
+```
+
+#### `deploy.sh`
 
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")"
 
-UPSTREAM_REPO="${UPSTREAM_REPO:-https://github.com/bermannoah/indexhibit.git}"
-UPSTREAM_REF="${1:-main}"
+# Load .env (gitignored).
+if [ -f .env ]; then
+  set -a
+  # shellcheck disable=SC1091
+  . ./.env
+  set +a
+fi
+
+require() {
+  for var in "$@"; do
+    if [ -z "${!var:-}" ]; then
+      echo "missing required env var: $var" >&2
+      exit 1
+    fi
+  done
+}
+
+UPSTREAM_REPO="${UPSTREAM_REPO:-https://github.com/<upstream-org>/indexhibit.git}"
+UPSTREAM_REF="${UPSTREAM_REF:-main}"
+
+require FLY_APP FLY_DB_APP FLY_REGION PUBLIC_URL SITE_NAME \
+        DB_NAME DB_USER DB_PASS MARIADB_PASSWORD MARIADB_ROOT_PASSWORD
 
 workdir="$(mktemp -d)"
 trap 'rm -rf "$workdir"' EXIT
 
+echo "==> cloning $UPSTREAM_REPO ($UPSTREAM_REF)"
 git clone --depth 1 --branch "$UPSTREAM_REF" "$UPSTREAM_REPO" "$workdir"
-cp fly.toml fly.mariadb.toml "$workdir/"
+
+# Render ${VAR} placeholders in the Fly templates.
+render() {
+  sed \
+    -e "s|\${FLY_APP}|${FLY_APP}|g" \
+    -e "s|\${FLY_DB_APP}|${FLY_DB_APP}|g" \
+    -e "s|\${FLY_REGION}|${FLY_REGION}|g" \
+    -e "s|\${PUBLIC_URL}|${PUBLIC_URL}|g" \
+    -e "s|\${SITE_NAME}|${SITE_NAME}|g" \
+    -e "s|\${ADMIN_EMAIL}|${ADMIN_EMAIL:-}|g" \
+    -e "s|\${ADMIN_FNAME}|${ADMIN_FNAME:-Admin}|g" \
+    -e "s|\${ADMIN_LNAME}|${ADMIN_LNAME:-Admin}|g" \
+    -e "s|\${DB_NAME}|${DB_NAME}|g" \
+    -e "s|\${DB_USER}|${DB_USER}|g" \
+    "$1" > "$2"
+}
+
+render fly.toml.tmpl "$workdir/fly.toml"
+render fly.mariadb.toml.tmpl "$workdir/fly.mariadb.toml"
+
+# Only push non-empty secrets.
+secrets=()
+add_secret() {
+  if [ -n "${2:-}" ]; then secrets+=("$1=$2"); fi
+}
+
+add_secret DB_HOST "${FLY_DB_APP}.flycast"
+add_secret DB_NAME "$DB_NAME"
+add_secret DB_USER "$DB_USER"
+add_secret DB_PASS "$DB_PASS"
+add_secret BUNNY_API_KEY "${BUNNY_API_KEY:-}"
+add_secret BUNNY_PULL_ZONE_ID "${BUNNY_PULL_ZONE_ID:-}"
+add_secret MEDIA_DRIVER "${MEDIA_DRIVER:-local}"
+add_secret MEDIA_URL "${MEDIA_URL:-}"
+add_secret BUNNY_STORAGE_ZONE "${BUNNY_STORAGE_ZONE:-}"
+add_secret BUNNY_STORAGE_KEY "${BUNNY_STORAGE_KEY:-}"
+add_secret BUNNY_STORAGE_ENDPOINT "${BUNNY_STORAGE_ENDPOINT:-}"
+
+echo "==> setting web app secrets"
+fly secrets set "${secrets[@]}" -a "$FLY_APP" >/dev/null
+
+echo "==> setting database secrets"
+fly secrets set \
+  MARIADB_PASSWORD="$MARIADB_PASSWORD" \
+  MARIADB_ROOT_PASSWORD="$MARIADB_ROOT_PASSWORD" \
+  -a "$FLY_DB_APP" >/dev/null
 
 cd "$workdir"
+echo "==> deploying database"
 fly deploy -c fly.mariadb.toml
+echo "==> deploying web app"
 fly deploy -c fly.toml
 ```
 
+Create the apps and volumes once first (the script assumes they exist):
+
 ```bash
-./deploy.sh main   # or a tag for a reproducible deploy
+fly apps create <app>    -o <fly-org>
+fly apps create <app>-db -o <fly-org>
+
+fly volumes create indexhibit_files  -a <app>    -r <region> -s 1 -y
+fly volumes create indexhibit_config -a <app>    -r <region> -s 1 -y
+fly volumes create indexhibit_cache  -a <app>    -r <region> -s 1 -y
+fly volumes create mariadb_data      -a <app>-db -r <region> -s 1 -y
 ```
 
 Tradeoffs:
@@ -235,9 +444,6 @@ Tradeoffs:
   upstream ref.
 - The Fly dashboard/GitHub build integration needs the source, so it only
   works with the full-mirror option. The thin repo is for local deploys.
-
-The config files are identical to the mirror option — same placeholders,
-secrets, and deploy commands.
 
 ## Bunny.net
 
