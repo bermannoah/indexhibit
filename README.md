@@ -127,7 +127,29 @@ IP of the MariaDB app instead:
 fly ips list -a indexhibit-db
 ```
 
-### 3. Log in
+### 3. Database passwords
+
+Generate them with `openssl rand -hex 32` (hex avoids shell/URL quoting
+issues) and use two distinct values:
+
+```bash
+app_pass=$(openssl rand -hex 32)   # MARIADB_PASSWORD and DB_PASS
+root_pass=$(openssl rand -hex 32)  # MARIADB_ROOT_PASSWORD
+```
+
+- `MARIADB_PASSWORD` and `DB_PASS` must be the **same** value — that is the
+  app user credential.
+- `MARIADB_ROOT_PASSWORD` is separate. Generate a fresh, distinct value; do
+  not reuse the app password.
+- Keep them in Fly secrets, never in `fly.toml` (which is committed).
+- The MariaDB image only applies `MARIADB_*` on the **first** initialization
+  of an empty data volume. To rotate a live database, change the password in
+  MariaDB first (`ALTER USER …`), then update the secret and redeploy.
+
+The thin deploy script can generate them for you (`./deploy.sh gen-passwords`
+— see [docs/DEPLOY.md](docs/DEPLOY.md#7-alternative-thin-deploy-repo)).
+
+### 4. Log in
 
 `AUTO_INSTALL=1` in `fly.toml` seeds the database on first boot. Log in at:
 

@@ -218,10 +218,16 @@ Copy the example and fill it in. `deploy.sh` exports these, renders the
 
 ```bash
 cp .env.example .env
-$EDITOR .env
+$EDITOR .env                # FLY_*, PUBLIC_URL, SITE_NAME, ADMIN_*, ...
 chmod +x deploy.sh
-./deploy.sh            # re-run after any .env change
+./deploy.sh gen-passwords   # generates the DB passwords into .env
+./deploy.sh                 # re-run after any .env change
 ```
+
+`gen-passwords` uses `openssl rand -hex 32` (two distinct values) and only
+writes entries that don't already exist, so it is safe to keep in your
+runbook. It also creates `.env` from `.env.example` if missing and `chmod 600`s
+it. Keep `.env` out of git (the included `.gitignore` does that).
 
 `.env.example`:
 
@@ -244,9 +250,10 @@ ADMIN_LNAME=Admin
 # Database (shared by both apps)
 DB_NAME=indexhibit
 DB_USER=indexhibit
-DB_PASS=change-me
-MARIADB_PASSWORD=change-me
-MARIADB_ROOT_PASSWORD=change-me-root
+# Generate the secrets with: ./deploy.sh gen-passwords
+# MARIADB_PASSWORD=
+# DB_PASS=
+# MARIADB_ROOT_PASSWORD=
 
 # Media storage (optional)
 MEDIA_DRIVER=local
@@ -259,8 +266,8 @@ BUNNY_STORAGE_ENDPOINT=https://storage.bunnycdn.com
 BUNNY_API_KEY=
 BUNNY_PULL_ZONE_ID=
 
-# Upstream source
-UPSTREAM_REPO=https://github.com/<upstream-org>/indexhibit.git
+# Upstream source (replace your-org)
+UPSTREAM_REPO=https://github.com/your-org/indexhibit.git
 UPSTREAM_REF=main
 ```
 
@@ -342,12 +349,36 @@ primary_region = "${FLY_REGION}"
 set -euo pipefail
 cd "$(dirname "$0")"
 
+# .env holds secrets.
+umask 077
+
 # Load .env (gitignored).
 if [ -f .env ]; then
   set -a
   # shellcheck disable=SC1091
   . ./.env
   set +a
+fi
+
+# ./deploy.sh gen-passwords  -> generate DB passwords into .env (idempotent)
+if [ "${1:-}" = "gen-passwords" ]; then
+  if ! command -v openssl >/dev/null 2>&1; then
+    echo "openssl is required to generate passwords" >&2
+    exit 1
+  fi
+
+  [ -f .env ] || cp .env.example .env
+  chmod 600 .env
+
+  app_pass="$(openssl rand -hex 32)"
+  root_pass="$(openssl rand -hex 32)"
+
+  grep -q '^MARIADB_PASSWORD=' .env      || echo "MARIADB_PASSWORD=$app_pass"      >> .env
+  grep -q '^DB_PASS=' .env               || echo "DB_PASS=$app_pass"               >> .env
+  grep -q '^MARIADB_ROOT_PASSWORD=' .env || echo "MARIADB_ROOT_PASSWORD=$root_pass" >> .env
+
+  echo "wrote database passwords to .env"
+  exit 0
 fi
 
 require() {
@@ -362,8 +393,11 @@ require() {
 UPSTREAM_REPO="${UPSTREAM_REPO:-https://github.com/<upstream-org>/indexhibit.git}"
 UPSTREAM_REF="${UPSTREAM_REF:-main}"
 
+# Keep the app credential in sync with the DB user password.
+DB_PASS="${DB_PASS:-${MARIADB_PASSWORD:-}}"
+
 require FLY_APP FLY_DB_APP FLY_REGION PUBLIC_URL SITE_NAME \
-        DB_NAME DB_USER DB_PASS MARIADB_PASSWORD MARIADB_ROOT_PASSWORD
+        DB_NAME DB_USER MARIADB_PASSWORD MARIADB_ROOT_PASSWORD DB_PASS
 
 workdir="$(mktemp -d)"
 trap 'rm -rf "$workdir"' EXIT
@@ -422,6 +456,18 @@ echo "==> deploying database"
 fly deploy -c fly.mariadb.toml
 echo "==> deploying web app"
 fly deploy -c fly.toml
+```
+
+`DB_PASS` defaults to `MARIADB_PASSWORD`, so the app credential and the DB
+user password can't drift. The MariaDB image only applies `MARIADB_*` values
+on first initialization of an empty data volume — to rotate a live database,
+change it in MariaDB first, then update `.env` and redeploy:
+
+```bash
+fly ssh console -a <app>-db
+mariadb -uroot -p
+# ALTER USER 'indexhibit'@'%' IDENTIFIED BY '<new>';      -- app user
+# ALTER USER 'root'@'%'       IDENTIFIED BY '<new-root>'; -- root
 ```
 
 Create the apps and volumes once first (the script assumes they exist):
