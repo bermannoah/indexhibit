@@ -139,8 +139,8 @@ else
 	$OBJ->baseurl = BASEURL;
 	$OBJ->vars->exhibit['baseurl'] = BASEURL;
 	$OBJ->vars->exhibit['basename'] = BASENAME;
-	$OBJ->vars->exhibit['basefiles'] = BASEFILES;
-	$OBJ->vars->exhibit['gimgs'] = GIMGS;
+	$OBJ->vars->exhibit['basefiles'] = MEDIA_BASE . BASEFILES;
+	$OBJ->vars->exhibit['gimgs'] = MEDIA_BASE . GIMGS;
 	$OBJ->vars->exhibit['ajax'] = false;
 	$OBJ->vars->exhibit['cms'] = false;
 

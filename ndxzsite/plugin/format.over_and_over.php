@@ -156,7 +156,7 @@ slide: function(event, ui) { $('label#caption_top_value span').html(ui.value) }
 					$size = getimagesize(DIRNAME . '/files/gimgs/' . $img['media_ref_id'] . '_' . $img['media_file']);
 				
 					//$a .= "<div class='over-and-over' style='margin-bottom: 100px;'>\n";
-					$a .= "<div class='asset'>\n<img src='" . BASEURL . "/files/gimgs/" . $img['media_ref_id'] . '_' . $img['media_file'] . "' width='$size[0]' height='$size[1]' alt='' class='lazyload' />\n</div>\n";
+					$a .= "<div class='asset'>\n<img src='" . MEDIA_BASE . "/files/gimgs/" . $img['media_ref_id'] . '_' . $img['media_file'] . "' width='$size[0]' height='$size[1]' alt='' class='lazyload' />\n</div>\n";
 				
 					// title goes into this space
 					if ($OBJ->vars->exhibit['titling'] == 1)

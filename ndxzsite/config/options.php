@@ -20,7 +20,7 @@ define('LANGUAGE', 'en-us');
 
 // for paths to files/images
 // NOTE: BASEFILES/GIMGS are both the on-disk paths (DIRNAME . GIMGS) and the
-// trailing URL paths (BASEURL . GIMGS). Uploaded media is served from
+// trailing URL paths (MEDIA_BASE . GIMGS). Uploaded media is served from
 // MEDIA_URL when configured; dimgs and the page cache stay on the app origin.
 define('BASEFILES', '/files');
 define('GIMGS', BASEFILES . '/gimgs');

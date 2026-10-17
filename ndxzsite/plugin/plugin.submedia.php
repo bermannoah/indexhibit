@@ -78,7 +78,7 @@ class Submedia
 
 			$s .= "<p>$return " . $this->array_neighbor($page['media_id'], $page['media_ref_id'], $page['media_file']) . "</p>\n";
 	
-			$s .= "<div><img src='" . BASEURL . $path . '/' . $page['media_ref_id'] . '_' . $page['media_file'] . "' width='$size[0]' height='$size[1]' /></div>\n";
+			$s .= "<div><img src='" . MEDIA_BASE . $path . '/' . $page['media_ref_id'] . '_' . $page['media_file'] . "' width='$size[0]' height='$size[1]' /></div>\n";
 		}
 		
 		// this should become an option

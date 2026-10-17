@@ -95,7 +95,7 @@ class xml
 			{
 				$dir = ($row['media_dir'] == '') ? "gimgs/" : $row['media_dir'] . '/';
 
-				$photos .= "<p><img src='" . BASEURL . '/files/' . $dir . htmlentities($row['media_file']) . "' /></p>\n";
+				$photos .= "<p><img src='" . MEDIA_BASE . '/files/' . $dir . htmlentities($row['media_file']) . "' /></p>\n";
 			}
 		}
 		

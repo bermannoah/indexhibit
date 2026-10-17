@@ -479,7 +479,7 @@ var baseurl = '" . BASEURL . "';";
 				$this->template->onready[] = "$('#ajx-tiling li').tabpost();";
 				
 				$body .= label($this->lang->word('background image')).br();
-				$body .= p(href('View', BASEURL . "/files/$rs[bgimg]", "target='_new'") . ' ' . 
+				$body .= p(href('View', MEDIA_BASE . "/files/$rs[bgimg]", "target='_new'") . ' ' . 
 					href('Delete', "?a=$go[a]&q=delbg&id=$go[id]&x=$rs[bgimg]"));
 			}
 
@@ -968,7 +968,7 @@ ul#sizes li { padding: 3px; border-bottom: 1px solid #ccc; }
 		
 		// ++++++++++++++++++++++++++++++++++++++++++++++++++++
 		
-		$body = "<div style='width:125px; float:left;'><img src='" . BASEURL . GIMGS . "/th-$rs[media_file]' width='100' /><br /><br /><a href='" . BASEURL . GIMGS . "/$rs[media_file]' target='_new'>" . $this->lang->word('view full size') . "</a></div>\n";
+		$body = "<div style='width:125px; float:left;'><img src='" . MEDIA_BASE . GIMGS . "/th-$rs[media_file]' width='100' /><br /><br /><a href='" . MEDIA_BASE . GIMGS . "/$rs[media_file]' target='_new'>" . $this->lang->word('view full size') . "</a></div>\n";
 
 		$body .= "<div style='width:495px; float:left;'>\n";
 		$body .= ips($this->lang->word('image title'), 'input', 'media_title', 
@@ -1185,9 +1185,9 @@ var ide = '$go[id]';";
 				
 				// we need to delete the picture too...
 				$safe = ndxz_safe_path(DIRNAME . '/files/', (string) $_POST['filename']);
+				if ($safe !== false && class_exists('Storage')) Storage::delete($safe);
 				# reason: path is constrained by ndxz_safe_path/ndxz_safe_subpath or comes from the database
 				# nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
-				if ($safe !== false && class_exists('Storage')) Storage::delete($safe);
 				if ($safe !== false) unlink($safe);
 			}
 			else
@@ -1230,7 +1230,7 @@ var ide = '$go[id]';";
 		{
 			$body = "<form action='?a=$go[a]&q=jxbg&id=$go[id]' method='post' name='iform' id='iform'>\n";		
 			$body .= ndxz_csrf_field();			$body .= "<div>\n";
-			$body .= "<a href='" . BASEURL . BASEFILES . "/$rs[bgimg]' target='_new'><img src='" . BASEURL . BASEFILES . "/$rs[bgimg]' width='25' style='padding-top:2px;' valign='center' border='0' /></a>";
+			$body .= "<a href='" . MEDIA_BASE . BASEFILES . "/$rs[bgimg]' target='_new'><img src='" . MEDIA_BASE . BASEFILES . "/$rs[bgimg]' width='25' style='padding-top:2px;' valign='center' border='0' /></a>";
 			$body .= " <input type='button' name='delete' id='delete' value='" . $this->lang->word('delete') . "' style='padding-top:0;' />\n";
 			$body .= "<input type='hidden' name='upload' value='1' />\n";
 			$body .= "<input type='hidden' name='deletion' value='1' />\n";

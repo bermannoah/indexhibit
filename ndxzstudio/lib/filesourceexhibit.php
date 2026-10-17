@@ -51,7 +51,7 @@ class FilesourceExhibit
 					}
 					else
 					{
-						$thumb = BASEURL . $path . '/systh-' . $img['media_ref_id'] . '_' . $img['media_thumb'];
+						$thumb = MEDIA_BASE . $path . '/systh-' . $img['media_ref_id'] . '_' . $img['media_thumb'];
 						$cover = true;
 					}
 				}
@@ -59,11 +59,11 @@ class FilesourceExhibit
 				{
 					if ($img['media_thumb'] == '')
 					{
-						$thumb = BASEURL . $path . '/systh-' . $img['media_ref_id'] . '_' . $img['media_file'];
+						$thumb = MEDIA_BASE . $path . '/systh-' . $img['media_ref_id'] . '_' . $img['media_file'];
 					}
 					else
 					{
-						$thumb = BASEURL . $path . '/systh-' . $img['media_ref_id'] . '_' . $img['media_thumb'];
+						$thumb = MEDIA_BASE . $path . '/systh-' . $img['media_ref_id'] . '_' . $img['media_thumb'];
 						$cover = true;
 					}
 				}
@@ -196,15 +196,15 @@ class FilesourceExhibit
 						$out[$i][$key]['media_uploaded'] = $do['media_uploaded'];
 
 						$out[$i][$key]['media_file'] = $do['media_file']; // should not have the id appended to it
-						$out[$i][$key]['media_path'] = $OBJ->baseurl . $path . '/' . $do['media_ref_id'] . '_' . $do['media_file'];
+						$out[$i][$key]['media_path'] = MEDIA_BASE . $path . '/' . $do['media_ref_id'] . '_' . $do['media_file'];
 						
 						$out[$i][$key]['media_thumb_source'] = $do['media_thumb'];
 						$thumb = ($do['media_thumb'] != '') ? $do['media_thumb'] : $do['media_file'];
 						
-						//$out[$i][$key]['media_thumb'] = $OBJ->baseurl . $path . '/th-' . $do['media_ref_id'] . '_' . $do['media_thumb'];
+						//$out[$i][$key]['media_thumb'] = MEDIA_BASE . $path . '/th-' . $do['media_ref_id'] . '_' . $do['media_thumb'];
 
 						$out[$i][$key]['media_thumb'] = 'th-' . $do['media_ref_id'] . '_' . $thumb;
-						$out[$i][$key]['media_thumb_path'] = $OBJ->baseurl . $path . '/th-' . $do['media_ref_id'] . '_' . $thumb;
+						$out[$i][$key]['media_thumb_path'] = MEDIA_BASE . $path . '/th-' . $do['media_ref_id'] . '_' . $thumb;
 						
 						$out[$i][$key]['title'] = $do['title'];
 						$out[$i][$key]['url'] = $do['url'];
@@ -234,11 +234,11 @@ class FilesourceExhibit
 						// this means it has an alt path - like a large video
 						if ($do['media_dir'] != '')
 						{
-							$out[$i][$key]['media_path'] = $OBJ->baseurl . '/files/' . $do['media_dir'] . '/' . $do['media_file'];
+							$out[$i][$key]['media_path'] = MEDIA_BASE . '/files/' . $do['media_dir'] . '/' . $do['media_file'];
 						}
 						else
 						{
-							$out[$i][$key]['media_path'] = $OBJ->baseurl . $path . '/' . $do['media_ref_id'] . '_' . $do['media_file'];
+							$out[$i][$key]['media_path'] = MEDIA_BASE . $path . '/' . $do['media_ref_id'] . '_' . $do['media_file'];
 						}
 						
 						// something to think about here
@@ -246,13 +246,13 @@ class FilesourceExhibit
 						// *****************************************************************
 						$out[$i][$key]['media_thumb_source'] = $do['media_thumb'];
 						$out[$i][$key]['media_thumb'] = 'th-' . $do['media_ref_id'] . '_' . $do['media_thumb'];
-						$out[$i][$key]['media_thumb_path'] = $OBJ->baseurl . $path . '/th-' . $do['media_ref_id'] . '_' . $do['media_thumb'];
+						$out[$i][$key]['media_thumb_path'] = MEDIA_BASE . $path . '/th-' . $do['media_ref_id'] . '_' . $do['media_thumb'];
 						
 						// something to think about here
 						/*
 						if ($do['media_thumb'] != '')
 						{
-						$out[$i][$key]['media_thumb'] = $OBJ->baseurl . $path . '/th-' . $do['media_ref_id'] . '_' . $do['media_thumb'];
+						$out[$i][$key]['media_thumb'] = MEDIA_BASE . $path . '/th-' . $do['media_ref_id'] . '_' . $do['media_thumb'];
 						}
 						else
 						{
@@ -261,8 +261,8 @@ class FilesourceExhibit
 						*/
 								
 						//$out[$i][$key]['media_thumb_path'] = $OBJ->baseurl . '/' . $out[$i][$key]['media_thumb'];
-						//$out[$i][$key]['media_thumb_path'] = $OBJ->baseurl . $path . '/th-' . $do['media_ref_id'] . '_' . $do['media_thumb'];
-						//$out[$i][$key]['media_thumb_path'] = $OBJ->baseurl . '/files/default_video_panel.jpg';
+						//$out[$i][$key]['media_thumb_path'] = MEDIA_BASE . $path . '/th-' . $do['media_ref_id'] . '_' . $do['media_thumb'];
+						//$out[$i][$key]['media_thumb_path'] = MEDIA_BASE . '/files/default_video_panel.jpg';
 
 						$out[$i][$key]['title'] = $do['title'];
 						$out[$i][$key]['url'] = $do['url'];

@@ -66,7 +66,7 @@ function jxs_box()
 		$a .= "<div class='picture' style='width: $size[0]px; height: $size[1]px;'>\n";
 		$a .= "<div>\n";
 		$a .= "<a href='#' class='link' id='a$rs[media_id]' onclick=\"$.fn.ndxz_box.grower(this, false); return false;\">";
-		$a .= "<img src='" . $OBJ->core->rs['baseurl'] . "/files/gimgs/" . $rs['id'] . "_" . $rs['media_file'] . "' width='$size[0]' height='$size[1]' alt='yep' />";
+		$a .= "<img src='" . MEDIA_BASE . "/files/gimgs/" . $rs['id'] . "_" . $rs['media_file'] . "' width='$size[0]' height='$size[1]' alt='yep' />";
 		$a .= "</a>\n";
 		$a .= "</div>\n";
 		$a .= "</div>\n";

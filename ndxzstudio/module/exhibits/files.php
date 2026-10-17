@@ -333,20 +333,20 @@ function getExhibitImages($id)
 				}
 				else
 				{
-					$thumb = BASEURL . $path . '/sys-' . $img['media_thumb'];
+					$thumb = MEDIA_BASE . $path . '/sys-' . $img['media_thumb'];
 					$poster = true;
 				}
 			}
 			else
 			{
-				//$thumb = BASEURL . $path . '/sys-' . $img['media_ref_id'] . '_' . $img['media_file'];
+				//$thumb = MEDIA_BASE . $path . '/sys-' . $img['media_ref_id'] . '_' . $img['media_file'];
 				if ($img['media_thumb'] == '')
 				{
-					$thumb = BASEURL . $path . '/sys-' . $img['media_file'];
+					$thumb = MEDIA_BASE . $path . '/sys-' . $img['media_file'];
 				}
 				else
 				{
-					$thumb = BASEURL . $path . '/sys-' . $img['media_thumb'];
+					$thumb = MEDIA_BASE . $path . '/sys-' . $img['media_thumb'];
 					$poster = true;
 				}
 			}

@@ -176,12 +176,12 @@ slide: function(event, ui) { $('label#caption_top_value span').html(ui.value) }
 					
 					if ($OBJ->vars->exhibit['media_source'] == 0)
 					{
-					$a .= "<div class='asset'><img data-src='" . BASEURL . "/files/gimgs/" . $img['media_file'] . "' src='" . BASEURL . "/files/gimgs/" . $img['media_ref_id'] . '_' . $img['media_file'] . "' width='$size[0]' height='$size[1]' alt='' class='lazyload' data-mime='$img[media_mime]' data-src-title=\"$img[media_title]\" data-src-caption=\"" . strip_tags($img['media_caption']) . "\"/></div>\n";
+					$a .= "<div class='asset'><img data-src='" . MEDIA_BASE . "/files/gimgs/" . $img['media_file'] . "' src='" . MEDIA_BASE . "/files/gimgs/" . $img['media_ref_id'] . '_' . $img['media_file'] . "' width='$size[0]' height='$size[1]' alt='' class='lazyload' data-mime='$img[media_mime]' data-src-title=\"$img[media_title]\" data-src-caption=\"" . strip_tags($img['media_caption']) . "\"/></div>\n";
 					}
 					else // no links or appropriate links
 					{
 						// we need to link to the dimg images here?
-						$a .= "<div class='asset'><a href='" . BASEURL . $img['url'] . "'><img data-src='" . BASEURL . "/files/gimgs/" . $img['media_file'] . "' src='" . BASEURL . "/files/gimgs/" . $img['media_ref_id'] . '_' . $img['media_file'] . "' width='$size[0]' height='$size[1]' alt='' class='lazyload' /></a></div>\n";
+						$a .= "<div class='asset'><a href='" . BASEURL . $img['url'] . "'><img data-src='" . MEDIA_BASE . "/files/gimgs/" . $img['media_file'] . "' src='" . MEDIA_BASE . "/files/gimgs/" . $img['media_ref_id'] . '_' . $img['media_file'] . "' width='$size[0]' height='$size[1]' alt='' class='lazyload' /></a></div>\n";
 					}
 				
 					// title goes into this space

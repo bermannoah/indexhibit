@@ -88,7 +88,15 @@ class Storage
 		$remoteKey = ltrim((string) $remoteKey, '/');
 		if ($remoteKey === '') return false;
 
-		return self::request('DELETE', $remoteKey);
+		$ok = self::request('DELETE', $remoteKey);
+
+		// Drop the deleted file from the CDN edge as well.
+		if ($ok && function_exists('ndxz_bunny_purge_url') && defined('MEDIA_BASE'))
+		{
+			ndxz_bunny_purge_url(MEDIA_BASE . '/' . $remoteKey);
+		}
+
+		return $ok;
 	}
 
 	/**

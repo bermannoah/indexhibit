@@ -104,7 +104,7 @@ class Jxs_grow
 			$a .= "<div class='picture' style='width: $size[0]px; height: $size[1]px; position: relative;'>\n";
 			$a .= "<div>\n";
 			$a .= "<a href='#' class='link' id='a$rs[media_id]' onclick=\"$.fn.ndxz_grow.grower(this, false); return false;\">";
-			$a .= "<img src='" . $OBJ->vars->exhibit['baseurl'] . '/files/gimgs/' . $rs['id'] . "_" . $rs['media_file'] . "' width='$size[0]' height='$size[1]' alt='yep' />";
+			$a .= "<img src='" . MEDIA_BASE . '/files/gimgs/' . $rs['id'] . "_" . $rs['media_file'] . "' width='$size[0]' height='$size[1]' alt='yep' />";
 			$a .= "</a>\n";
 			$a .= "</div>\n";
 			//if ($caption != '') $a .= "<div style='width: $size[0]px; text-align: left; z-index: 1; bottom: 0; left: 0; position: absolute;'><div style='padding: 6px; background: #000; color: transparent; opacity: 0.35;'>$caption</div></div>\n";

@@ -17,7 +17,7 @@ function plugin_insert($arr)
 	if (in_array($arr['media_mime'], $default['images']))
 	{
 		echo 'here';
-		return "onClick=\"parent.ModInsImg('". BASEURL . '/files/' . $file ."', '$x', '$y'); return false;\"";
+		return "onClick=\"parent.ModInsImg('". MEDIA_BASE . '/files/' . $file ."', '$x', '$y'); return false;\"";
 	}
 
 	// mp3, mov, etc...
@@ -73,6 +73,6 @@ function plugin_insert($arr)
 	{
 		$file = ($arr['media_dir'] == '') ? $file : $arr['media_dir'] . '/' . $file;
 
-		return "onClick=\"parent.ModInsFile('". BASEURL . "/files/$file', '$desc', 1); return false;\"";
+		return "onClick=\"parent.ModInsFile('". MEDIA_BASE . "/files/$file', '$desc', 1); return false;\"";
 	}	
 }

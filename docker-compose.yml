@@ -18,6 +18,11 @@ services:
       ADMIN_LNAME: Admin
       BUNNY_API_KEY: ""
       BUNNY_PULL_ZONE_ID: ""
+      MEDIA_DRIVER: "${MEDIA_DRIVER:-local}"
+      MEDIA_URL: "${MEDIA_URL:-}"
+      BUNNY_STORAGE_ZONE: "${BUNNY_STORAGE_ZONE:-}"
+      BUNNY_STORAGE_KEY: "${BUNNY_STORAGE_KEY:-}"
+      BUNNY_STORAGE_ENDPOINT: "${BUNNY_STORAGE_ENDPOINT:-https://storage.bunnycdn.com}"
     depends_on:
       db:
         condition: service_healthy

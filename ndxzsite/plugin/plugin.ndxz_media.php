@@ -45,7 +45,7 @@ function ndxz_media()
 	//$s .= "<h2><a href='" . BASEURL . "$rs[url]'>$rs[title]</a>$cap</h2>\n";
 	$return = "<a href='" . BASEURL . ndxz_rewriter($rs['url']) . "'>Thumbnails</a>&nbsp;&nbsp;";
 	$s .= "<p>$return " . array_neighbor($page['media_id'], $page['media_ref_id'], $page['media_file']) . "</p>\n";
-	$s .= "<p><img src='" . BASEURL . $path . '/' . $page['media_ref_id'] . '_' . $page['media_file'] . "' width='$size[0]' height='$size[1]' /></p>\n";
+	$s .= "<p><img src='" . MEDIA_BASE . $path . '/' . $page['media_ref_id'] . '_' . $page['media_file'] . "' width='$size[0]' height='$size[1]' /></p>\n";
 	$s .= "<div id='media_info'>\n";
 	if ($page['media_title'] !=  '') $s .= "<h2>" . $page['media_title'] . "</h2>";
 	$s .= $page['media_caption'];

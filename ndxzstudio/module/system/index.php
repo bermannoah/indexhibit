@@ -131,7 +131,7 @@ class System extends Router
 			$b .= "<tr".row_color(" class='color'").">\n";
 			$b .= ($user['user_img'] == '') ? 
 				td("<div style='width: 35px; height: 35px; border: 1px solid #ccc;'><!-- --></div>", "width='5%' class='cell-doc'") : 
-				td("<div style='width: 35px; height: 35px; border: 1px solid #ccc;'><img src='" . BASEURL . "/files/$user[user_img]' width='35'</div>", "width='5%' class='cell-doc'");
+				td("<div style='width: 35px; height: 35px; border: 1px solid #ccc;'><img src='" . MEDIA_BASE . "/files/$user[user_img]' width='35'</div>", "width='5%' class='cell-doc'");
 			$b .= td(ndxz_esc($user['user_surname']) . ', ' . ndxz_esc($user['user_name']), "width='35%' class='cell-doc' style='vertical-align: top;'");
 			$b .= td('&nbsp;', "width='20%' class='cell-doc' style='vertical-align: top;'");
 			$b .= td(ndxz_esc($user['userid']), "width='20%' class='cell-doc' style='vertical-align: top;'");
@@ -301,9 +301,9 @@ class System extends Router
 		if (isset($_POST['upd_delusrimg']) && $_POST['delusrimg'])
 		{
 			$del = ndxz_safe_path(DIRNAME . '/files/', $_POST['delusrimg']);
+			if ($del !== false && class_exists('Storage')) Storage::delete($del);
 			# reason: path is constrained by ndxz_safe_path/ndxz_safe_subpath or comes from the database
 			# nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
-			if ($del !== false && class_exists('Storage')) Storage::delete($del);
 			if ($del !== false) unlink($del);
 			
 			$clean['user_img'] = '';
@@ -362,7 +362,7 @@ class System extends Router
 		else
 		{
 			$body .= "<div id='cover_image'>\n";
-			$body .= "<p><img src='" . BASEURL . "/files/" . $rs['user_img'] . "' width='75' /></p>\n";
+			$body .= "<p><img src='" . MEDIA_BASE . "/files/" . $rs['user_img'] . "' width='75' /></p>\n";
 			$body .= "<p><input type='submit' value='Delete Image' name='upd_delusrimg' /></p>\n";
 			$body .= "<input type='hidden' value='" . $rs['user_img'] . "' name='delusrimg' />\n";
 			$body .= "</div>\n";
@@ -3903,16 +3903,16 @@ var ide = '$go[id]';";
 			{
 				$body = "<div style='width:125px; float:left;'>&nbsp;\n";
 				$body .= "<div style='width: 100px; height: 75px; background: #ccc;'>&nbsp;</div><br />";
-				$body .= "<a href='" . BASEURL . BASEFILES . "/$rs[media_file]' target='_new'>" . $this->lang->word('view source file') . "</a></div>\n";
+				$body .= "<a href='" . MEDIA_BASE . BASEFILES . "/$rs[media_file]' target='_new'>" . $this->lang->word('view source file') . "</a></div>\n";
 				$body .= "</div>\n";
 			}
 			else
 			{
 				$body = "<div style='width:125px; float:left;'>\n";
 				
-				//$body .= "<img src='" . BASEURL . GIMGS . "/th-$rs[media_ref_id]_$rs[media_thumb]' width='100' /><br /><br /><a href='?a=$go[a]&q=detach&id=$rs[media_id]'>" . $this->lang->word('detach cover') . "</a><br /><br />\n";
-				$body .= "<img src='" . BASEURL . GIMGS . "/th-$rs[media_ref_id]_$rs[media_thumb]' width='100' /><br /><br />\n";
-				$body .= "<a href='" . BASEURL . BASEFILES . "/$rs[media_file]' target='_new'>" . $this->lang->word('view source file') . "</a></div>\n";
+				//$body .= "<img src='" . MEDIA_BASE . GIMGS . "/th-$rs[media_ref_id]_$rs[media_thumb]' width='100' /><br /><br /><a href='?a=$go[a]&q=detach&id=$rs[media_id]'>" . $this->lang->word('detach cover') . "</a><br /><br />\n";
+				$body .= "<img src='" . MEDIA_BASE . GIMGS . "/th-$rs[media_ref_id]_$rs[media_thumb]' width='100' /><br /><br />\n";
+				$body .= "<a href='" . MEDIA_BASE . BASEFILES . "/$rs[media_file]' target='_new'>" . $this->lang->word('view source file') . "</a></div>\n";
 			}
 		}
 		else // if it's a picture!
@@ -3925,16 +3925,16 @@ var ide = '$go[id]';";
 			if ($rs['media_thumb'] != '')
 			{
 				// the uploaded image
-				$body .= "<img src='" . BASEURL . GIMGS . "/th-$rs[media_ref_id]_$rs[media_file]' width='100' /><br /><br />\n";
+				$body .= "<img src='" . MEDIA_BASE . GIMGS . "/th-$rs[media_ref_id]_$rs[media_file]' width='100' /><br /><br />\n";
 				// cover art
-				//$body .= "<img src='" . BASEURL . GIMGS . "/th-$rs[media_ref_id]_$rs[media_thumb]' width='100' /><br /><br /><a href='?a=$go[a]&q=detach&id=$rs[media_id]'>" . $this->lang->word('detach cover') . "</a><br /><br />\n";
+				//$body .= "<img src='" . MEDIA_BASE . GIMGS . "/th-$rs[media_ref_id]_$rs[media_thumb]' width='100' /><br /><br /><a href='?a=$go[a]&q=detach&id=$rs[media_id]'>" . $this->lang->word('detach cover') . "</a><br /><br />\n";
 			}
 			else // cover art! AND, it has an actual image too!
 			{
-				$body .= "<img src='" . BASEURL . GIMGS . "/th-$rs[media_ref_id]_$rs[media_file]' width='100' /><br /><br />\n";
+				$body .= "<img src='" . MEDIA_BASE . GIMGS . "/th-$rs[media_ref_id]_$rs[media_file]' width='100' /><br /><br />\n";
 			}
 			
-			$body .= "<a href='" . BASEURL . GIMGS . "/$rs[media_file]' target='_new'>" . $this->lang->word('view source file') . "</a></div>\n";
+			$body .= "<a href='" . MEDIA_BASE . GIMGS . "/$rs[media_file]' target='_new'>" . $this->lang->word('view source file') . "</a></div>\n";
 		}
 		
 		if ($rs['media_mime'] == 'url')
@@ -4031,9 +4031,9 @@ var ide = '$go[id]';";
 					
 					$body .= "<div class='col25'>$np\n";
 					
-					$body .= "<img src='" . BASEURL . GIMGS . "/th-$rs[media_ref_id]_$rs[media_thumb]' width='100' /><br /><br /><a href='?a=$go[a]&q=detach&id=$rs[media_id]'>" . $this->lang->word('detach cover') . "</a><br /><br />\n";
+					$body .= "<img src='" . MEDIA_BASE . GIMGS . "/th-$rs[media_ref_id]_$rs[media_thumb]' width='100' /><br /><br /><a href='?a=$go[a]&q=detach&id=$rs[media_id]'>" . $this->lang->word('detach cover') . "</a><br /><br />\n";
 					
-					$body .= "<a href='" . BASEURL . BASEFILES . "/$rs[media_file]' target='_new'>" . $this->lang->word('view source file') . "</a>$insert $media</div>\n";
+					$body .= "<a href='" . MEDIA_BASE . BASEFILES . "/$rs[media_file]' target='_new'>" . $this->lang->word('view source file') . "</a>$insert $media</div>\n";
 				}
 			}
 			else // if it's a picture!
@@ -4047,17 +4047,17 @@ var ide = '$go[id]';";
 				if ($rs['media_thumb'] != '')
 				{
 					// the uploaded image
-					$body .= "<img src='" . BASEURL . GIMGS . "/th-$rs[media_ref_id]_$rs[media_file]' width='100' /><br /><br />\n";
+					$body .= "<img src='" . MEDIA_BASE . GIMGS . "/th-$rs[media_ref_id]_$rs[media_file]' width='100' /><br /><br />\n";
 					// cover art
-					$body .= "<img src='" . BASEURL . GIMGS . "/th-$rs[media_ref_id]_$rs[media_thumb]' width='100' /><br /><br /><a href='?a=$go[a]&q=detach&id=$rs[media_id]'>" . $this->lang->word('detach cover') . "</a><br /><br />\n";
+					$body .= "<img src='" . MEDIA_BASE . GIMGS . "/th-$rs[media_ref_id]_$rs[media_thumb]' width='100' /><br /><br /><a href='?a=$go[a]&q=detach&id=$rs[media_id]'>" . $this->lang->word('detach cover') . "</a><br /><br />\n";
 				}
 				else // cover art! AND, it has an actual image too!
 				{
-					$body .= "<img src='" . BASEURL . GIMGS . "/th-$rs[media_ref_id]_$rs[media_file]' width='100' /><br /><br />\n";
+					$body .= "<img src='" . MEDIA_BASE . GIMGS . "/th-$rs[media_ref_id]_$rs[media_file]' width='100' /><br /><br />\n";
 					$body .= "<a href='?a=$go[a]&q=thumb&id=$rs[media_ref_id]&x=coverart&xid=$rs[media_id]'>" . $this->lang->word('attach cover') . "</a><br /><br />";
 				}
 				
-				$body .= "<a href='" . BASEURL . GIMGS . "/$rs[media_file]' target='_new'>" . $this->lang->word('view source file') . "</a>$insert</div>\n";
+				$body .= "<a href='" . MEDIA_BASE . GIMGS . "/$rs[media_file]' target='_new'>" . $this->lang->word('view source file') . "</a>$insert</div>\n";
 			}
 
 			//$body .= "<div style='width:275px; float:left;'>\n";
@@ -4350,8 +4350,8 @@ var ide = '$go[id]';";
 		$OBJ->baseurl = BASEURL;
 		$OBJ->vars->exhibit['baseurl'] = BASEURL;
 		$OBJ->vars->exhibit['basename'] = BASENAME;
-		$OBJ->vars->exhibit['basefiles'] = BASEFILES;
-		$OBJ->vars->exhibit['gimgs'] = GIMGS;
+		$OBJ->vars->exhibit['basefiles'] = MEDIA_BASE . BASEFILES;
+		$OBJ->vars->exhibit['gimgs'] = MEDIA_BASE . GIMGS;
 		
 		$OBJ->vars->exhibit['cms'] = true;
 		$OBJ->vars->exhibit['ajax'] = false;
@@ -5626,7 +5626,7 @@ var ide = '$go[id]';";
 			$out .= "<div id='thepic$asset[media_id]' style='float: left; width: 95px; height: 115px;'>\n";
 			$out .= "<div style='width: 75px; height: 75px;'>\n";
 			$out .= "<a href='#' onclick=\"delAsset($asset[media_id]); return false;\" style='background: transparent;'>";
-			$out .= "<img src='" . BASEURL . GIMGS . '/sys-' . $asset['media_file'] . "' width='75' height='75' />";
+			$out .= "<img src='" . MEDIA_BASE . GIMGS . '/sys-' . $asset['media_file'] . "' width='75' height='75' />";
 			$out .= "</a>\n";
 			$out .= "</div>\n";
 			$out .= "</div>\n";
@@ -5664,7 +5664,7 @@ var ide = '$go[id]';";
 			$out .= "<div id='pic$asset[media_id]' style='float: left; width: 95px; height: 115px;'>\n";
 			$out .= "<div style='width: 75px; height: 75px;'>\n";
 			$out .= "<a href='#' onclick=\"addAsset($asset[media_id]); return false;\" style='background: transparent;'>";
-			$out .= "<img src='" . BASEURL . GIMGS . '/sys-' . $asset['media_file'] . "' width='75' height='75' />";
+			$out .= "<img src='" . MEDIA_BASE . GIMGS . '/sys-' . $asset['media_file'] . "' width='75' height='75' />";
 			$out .= "</a>\n";
 			$out .= "</div>\n";
 			$out .= "</div>\n";
@@ -5695,7 +5695,7 @@ var ide = '$go[id]';";
 					$out .= "<div id='pic$asset[media_id]' style='float: left; width: 95px; height: 75px;'>\n";
 					$out .= "<div style='width: 100px; height: 75px;'>\n";
 					$out .= "<a href='#' onclick=\"addAsset($asset[media_id]); return false;\" style='background: transparent;'>";
-					$out .= "<img src='" . BASEURL . GIMGS . '/sys-' . $asset['media_file'] . "' width='75' height='75' />";
+					$out .= "<img src='" . MEDIA_BASE . GIMGS . '/sys-' . $asset['media_file'] . "' width='75' height='75' />";
 					$out .= "</a>\n";
 					$out .= "</div>\n";
 					$out .= "</div>\n";
@@ -6344,7 +6344,7 @@ var ide = '$go[id]';";
 			span($this->lang->word('user'), "style='font-weight: normal; font-size: 11px;'");
 			
 		$img = ($rs['user_img'] == '') ? td("<div style='width: 45px; float: left;'><div style='width: 35px; height: 35px; border: 1px solid #ccc; border: 1px solid #ccc;'>&nbsp;</div></div>") : 
-			td("<div style='width: 45px; float: left;'><div style='width: 35px; height: 35px; border: 1px solid #ccc;'><img src='" . BASEURL . "/files/$rs[user_img]' width='35' /></div></div>");
+			td("<div style='width: 45px; float: left;'><div style='width: 35px; height: 35px; border: 1px solid #ccc;'><img src='" . MEDIA_BASE . "/files/$rs[user_img]' width='35' /></div></div>");
 		
 		$b .= "<div class='col' style='padding-bottom: 12px;'>$img <h3>" . ndxz_esc($rs['user_name']) . ' ' . ndxz_esc($rs['user_surname']) . " <br />$pre_span</h3></div>\n";
 		$b .= "<div class='cl'><!-- --></div>\n";

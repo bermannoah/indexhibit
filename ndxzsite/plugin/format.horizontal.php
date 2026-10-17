@@ -278,7 +278,7 @@ slide: function(event, ui) { $('label#padding_left_value span').html(ui.value) }
 						
 						$b .= "<div " . $this->valign($size[1]) . ">\n";
 						
-						$b .= "<img src='" . BASEURL . $the_file . "' width='$size[0]' height='$size[1]' alt='$go[media_thumb_path]' />";
+						$b .= "<img src='" . ((strpos($the_file, '/files/dimgs/') === 0) ? BASEURL : MEDIA_BASE) . $the_file . "' width='$size[0]' height='$size[1]' alt='$go[media_thumb_path]' />";
 						
 						$b .= "</div>\n";
 					}
@@ -342,7 +342,7 @@ slide: function(event, ui) { $('label#padding_left_value span').html(ui.value) }
 						
 						$b .= "<div " . $this->valign($size[1]) . ">\n";
 						
-						$b .= "<img src='" . BASEURL . $the_file . "' width='$size[0]' height='$size[1]' alt='$go[media_thumb_path]' />";
+						$b .= "<img src='" . ((strpos($the_file, '/files/dimgs/') === 0) ? BASEURL : MEDIA_BASE) . $the_file . "' width='$size[0]' height='$size[1]' alt='$go[media_thumb_path]' />";
 						
 						$b .= "</div>\n";
 					}

@@ -22,6 +22,11 @@ only.
 | `ADMIN_LNAME` | no | Initial admin last name |
 | `BUNNY_API_KEY` | no | Bunny.net API key for cache purge |
 | `BUNNY_PULL_ZONE_ID` | no | Bunny pull zone ID for purge-all |
+| `MEDIA_DRIVER` | no | `local` (default) or `bunny` |
+| `MEDIA_URL` | no | Public base for uploaded media (CDN hostname) |
+| `BUNNY_STORAGE_ZONE` | no | Bunny Storage Zone name |
+| `BUNNY_STORAGE_KEY` | no | Bunny Storage Zone password (PUT/DELETE) |
+| `BUNNY_STORAGE_ENDPOINT` | no | Default `https://storage.bunnycdn.com` |
 
 The default initial login is still **`index1` / `exhibit`** (change it
 immediately after first login).
@@ -245,6 +250,46 @@ your Fly app origin.
 4. Add the edge rules below.
 5. TLS terminates at Fly (`force_https = true` in `fly.toml`). Point your DNS
    at Bunny and configure Bunny's SSL for the public hostname.
+
+### Media storage (Storage Zone)
+
+Uploaded media (`/files/...`) can live in a Bunny Storage Zone instead of the
+Fly volume. The app still generates images/thumbnails locally (GD) and then
+mirrors them to the zone.
+
+1. Create a **Storage Zone** and note its name and password.
+2. Create a **Pull Zone** with that storage zone as its origin, and add your
+   media hostname (for example `cdn.example.com`).
+3. Configure the app:
+
+| Variable | Value |
+| --- | --- |
+| `MEDIA_DRIVER` | `bunny` |
+| `MEDIA_URL` | `https://cdn.example.com` |
+| `BUNNY_STORAGE_ZONE` | storage zone name |
+| `BUNNY_STORAGE_KEY` | storage zone password |
+| `BUNNY_STORAGE_ENDPOINT` | optional (regional endpoint) |
+
+```bash
+fly secrets set \
+  MEDIA_DRIVER='bunny' \
+  MEDIA_URL='https://cdn.example.com' \
+  BUNNY_STORAGE_ZONE='...' \
+  BUNNY_STORAGE_KEY='...' \
+  -a <app-name>
+```
+
+Notes:
+
+- Storage keys mirror the app paths (`files/gimgs/...`), so
+  `https://cdn.example.com/files/gimgs/x.jpg` maps to `files/gimgs/x.jpg` in
+  the storage zone.
+- `dimgs/` (dynamic resizes) and the page cache stay on the Fly volume — they
+  are derived/local by design. Only uploaded media and generated thumbnails go
+  to the zone.
+- Deletes remove the object from the zone and purge its CDN URL.
+- With `MEDIA_DRIVER=local` (or `MEDIA_URL` empty) nothing changes: media is
+  served from `BASEURL` as before.
 
 ### Edge rules
 

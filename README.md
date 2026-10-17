@@ -76,6 +76,11 @@ The container reads configuration from environment variables and writes
 | `ADMIN_LNAME` | no | Initial admin last name |
 | `BUNNY_API_KEY` | no | Bunny.net API key for cache purge |
 | `BUNNY_PULL_ZONE_ID` | no | Bunny pull zone ID for cache purge |
+| `MEDIA_DRIVER` | no | `local` (default) or `bunny` |
+| `MEDIA_URL` | no | Public base for uploaded media (CDN hostname) |
+| `BUNNY_STORAGE_ZONE` | no | Bunny Storage Zone name |
+| `BUNNY_STORAGE_KEY` | no | Bunny Storage Zone password (PUT/DELETE) |
+| `BUNNY_STORAGE_ENDPOINT` | no | Default `https://storage.bunnycdn.com` |
 | `FORCE_CONFIG_GEN` | no | Set `1` to regenerate `config.php` on next boot |
 
 A template is available in `.env.example`.

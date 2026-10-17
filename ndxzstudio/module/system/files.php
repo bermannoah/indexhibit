@@ -184,7 +184,7 @@ function getFiles()
 			$edit = span(href("<img src='asset/img/files-edit.gif' />",
 				"?a=$go[a]&amp;q=editfile&amp;id=$a[media_id]"), "class='p-action'");
 			
-			$url = BASEURL . '/files/' . $a['media_file'];
+			$url = MEDIA_BASE . '/files/' . $a['media_file'];
 			
 			if (in_array($mime, array_merge($default['images'], $default['flash'], $default['media'])))
 			{
@@ -367,7 +367,7 @@ function filesManagerType($type, $file, $x='', $y='', $desc='')
 	// images
 	if (in_array($type, $default['images']))
 	{
-		return href("<img src='asset/img/files-use.gif' />", '#', "onClick=\"parent.ModInsImg('". BASEURL . '/files/' . $file ."', '$x', '$y'); return false;\"");
+		return href("<img src='asset/img/files-use.gif' />", '#', "onClick=\"parent.ModInsImg('". MEDIA_BASE . '/files/' . $file ."', '$x', '$y'); return false;\"");
 	}
 
 	// mp3, mov, etc...
@@ -407,7 +407,7 @@ function filesManagerType($type, $file, $x='', $y='', $desc='')
 	else
 	{
 		
-		return href("<img src='asset/img/files-use.gif' />", '#', "onClick=\"parent.ModInsFile('". BASEURL . "/files/$file'); return false;\"");
+		return href("<img src='asset/img/files-use.gif' />", '#', "onClick=\"parent.ModInsFile('". MEDIA_BASE . "/files/$file'); return false;\"");
 	}	
 }
 

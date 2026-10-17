@@ -128,11 +128,11 @@ class FilesourceFolder
 
 				if (!in_array($img['media_mime'], $default['images']))
 				{
-					$thumb = ($img['media_thumb'] == '') ? 'asset/img/thumb-default.gif' : BASEURL . '/files/' . $rs['media_info'] . '/sys-' . $img['media_ref_id'] . '_' . $img['media_thumb'];
+					$thumb = ($img['media_thumb'] == '') ? 'asset/img/thumb-default.gif' : MEDIA_BASE . '/files/' . $rs['media_info'] . '/sys-' . $img['media_ref_id'] . '_' . $img['media_thumb'];
 				}
 				else
 				{
-					$thumb = BASEURL . '/files/' . $rs['media_info'] . '/sys-' . $img['media_ref_id'] . '_' . $img['media_file'];
+					$thumb = MEDIA_BASE . '/files/' . $rs['media_info'] . '/sys-' . $img['media_ref_id'] . '_' . $img['media_file'];
 				}
 
 				//$view = "<a href='?a=system&amp;q=view&amp;id=$img[media_id]' rel=\"shadowbox;player=iframe;height=400;width=800\" style='color: #999;'>".$OBJ->lang->word('view')."</a> ";
@@ -355,9 +355,9 @@ class FilesourceFolder
 					$out[$i][$key]['media_thy'] = $sizeth[1];
 					$out[$i][$key]['media_uploaded'] = $do['media_uploaded'];
 					$out[$i][$key]['media_file'] = $do['media_file']; // should not have the id appended to it
-					$out[$i][$key]['media_path'] = $OBJ->baseurl . GIMGS . '/' . $do['media_ref_id'] . '_' . $do['media_file'];
+					$out[$i][$key]['media_path'] = MEDIA_BASE . GIMGS . '/' . $do['media_ref_id'] . '_' . $do['media_file'];
 					$out[$i][$key]['media_thumb'] = $filename;
-					$out[$i][$key]['media_thumb_path'] = $OBJ->baseurl . GIMGS . '/' . $filename;
+					$out[$i][$key]['media_thumb_path'] = MEDIA_BASE . GIMGS . '/' . $filename;
 					$out[$i][$key]['title'] = $do['title'];
 					$out[$i][$key]['url'] = $do['url'];
 				}
@@ -382,9 +382,9 @@ class FilesourceFolder
 							$out[$i][$key]['media_thy'] = $sizeth[1];
 							$out[$i][$key]['media_uploaded'] = $do['media_uploaded'];
 							$out[$i][$key]['media_file'] = $do['media_file']; // should not have the id appended to it
-							$out[$i][$key]['media_path'] = $OBJ->baseurl . GIMGS . '/' . $do['media_ref_id'] . '_' . $do['media_file'];
+							$out[$i][$key]['media_path'] = MEDIA_BASE . GIMGS . '/' . $do['media_ref_id'] . '_' . $do['media_file'];
 							$out[$i][$key]['media_thumb'] = 'th-' . $do['media_ref_id'] . '_' . $do['media_thumb'];
-							$out[$i][$key]['media_thumb_path'] = $OBJ->baseurl . GIMGS . '/th-' . $do['media_ref_id'] . '_' . $do['media_thumb'];
+							$out[$i][$key]['media_thumb_path'] = MEDIA_BASE . GIMGS . '/th-' . $do['media_ref_id'] . '_' . $do['media_thumb'];
 							$out[$i][$key]['title'] = $do['title'];
 							$out[$i][$key]['url'] = $do['url'];
 						}

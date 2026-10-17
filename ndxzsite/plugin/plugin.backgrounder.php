@@ -11,7 +11,7 @@ function backgrounder()
 	
 	$tiling = ($OBJ->vars->exhibit['tiling'] != 1) ? 'no-repeat' : 'repeat';
 	
-	$style .= ($OBJ->vars->exhibit['bgimg'] != '') ? "\nbackground-image: url(" . $OBJ->baseurl . "/files/" . $OBJ->vars->exhibit['bgimg'] . ");\nbackground-repeat: $tiling;\nbackground-position: 215px 0;\nbackground-attachment: fixed;\n" : '';
+	$style .= ($OBJ->vars->exhibit['bgimg'] != '') ? "\nbackground-image: url(" . MEDIA_BASE . "/files/" . $OBJ->vars->exhibit['bgimg'] . ");\nbackground-repeat: $tiling;\nbackground-position: 215px 0;\nbackground-attachment: fixed;\n" : '';
 	
 	// nothing to add
 	if ($style == '') return;

@@ -98,7 +98,7 @@ class FilesourceTag
 					}
 					else
 					{
-						$thumb = BASEURL . $path . '/sys-' . $img['media_ref_id'] . '_' . $img['media_thumb'];
+						$thumb = MEDIA_BASE . $path . '/sys-' . $img['media_ref_id'] . '_' . $img['media_thumb'];
 						$poster = true;
 					}
 				}
@@ -106,11 +106,11 @@ class FilesourceTag
 				{
 					if ($img['media_thumb'] == '')
 					{
-						$thumb = BASEURL . $path . '/sys-' . $img['media_ref_id'] . '_' . $img['media_file'];
+						$thumb = MEDIA_BASE . $path . '/sys-' . $img['media_ref_id'] . '_' . $img['media_file'];
 					}
 					else
 					{
-						$thumb = BASEURL . $path . '/sys-' . $img['media_ref_id'] . '_' . $img['media_thumb'];
+						$thumb = MEDIA_BASE . $path . '/sys-' . $img['media_ref_id'] . '_' . $img['media_thumb'];
 						$poster = true;
 					}
 				}
@@ -195,7 +195,7 @@ class FilesourceTag
 					}
 					else
 					{
-						$thumb = BASEURL . $path . '/sys-' . $img['media_thumb'];
+						$thumb = MEDIA_BASE . $path . '/sys-' . $img['media_thumb'];
 						$poster = true;
 					}
 				}
@@ -203,11 +203,11 @@ class FilesourceTag
 				{
 					if ($img['media_thumb'] == '')
 					{
-						$thumb = BASEURL . $path . '/sys-' . $img['media_file'];
+						$thumb = MEDIA_BASE . $path . '/sys-' . $img['media_file'];
 					}
 					else
 					{
-						$thumb = BASEURL . $path . '/sys-' . $img['media_thumb'];
+						$thumb = MEDIA_BASE . $path . '/sys-' . $img['media_thumb'];
 						$poster = true;
 					}
 				}
@@ -438,9 +438,9 @@ class FilesourceTag
 					//$out[$i][$key]['media_thy'] = $sizeth[1];
 					$out[$i][$key]['media_uploaded'] = $do['media_uploaded'];
 					$out[$i][$key]['media_file'] = $do['media_file']; // should not have the id appended to it
-					$out[$i][$key]['media_path'] = $OBJ->baseurl . $path . '/' . $do['media_ref_id'] . '_' . $do['media_file'];
+					$out[$i][$key]['media_path'] = MEDIA_BASE . $path . '/' . $do['media_ref_id'] . '_' . $do['media_file'];
 					$out[$i][$key]['media_thumb'] = $filename;
-					$out[$i][$key]['media_thumb_path'] = $OBJ->baseurl . $path . '/' . $filename;
+					$out[$i][$key]['media_thumb_path'] = MEDIA_BASE . $path . '/' . $filename;
 					
 					$out[$i][$key]['title'] = $do['title'];
 					$out[$i][$key]['url'] = $do['url'];
@@ -479,15 +479,15 @@ class FilesourceTag
 							//$out[$i][$key]['media_thy'] = $sizeth[1];
 							$out[$i][$key]['media_uploaded'] = $do['media_uploaded'];
 							$out[$i][$key]['media_file'] = $do['media_file']; // should not have the id appended to it
-							//$out[$i][$key]['media_path'] = $OBJ->baseurl . GIMGS . '/' . $do['media_ref_id'] . '_' . $do['media_file'];
+							//$out[$i][$key]['media_path'] = MEDIA_BASE . GIMGS . '/' . $do['media_ref_id'] . '_' . $do['media_file'];
 							//$out[$i][$key]['media_thumb'] = 'th-' . $do['media_ref_id'] . '_' . $do['media_thumb'];
-							//$out[$i][$key]['media_thumb_path'] = $OBJ->baseurl . GIMGS . '/th-' . $do['media_ref_id'] . '_' . $do['media_thumb'];
-							$out[$i][$key]['media_path'] = $OBJ->baseurl . $path . '/' . $do['media_ref_id'] . '_' . $do['media_file'];
+							//$out[$i][$key]['media_thumb_path'] = MEDIA_BASE . GIMGS . '/th-' . $do['media_ref_id'] . '_' . $do['media_thumb'];
+							$out[$i][$key]['media_path'] = MEDIA_BASE . $path . '/' . $do['media_ref_id'] . '_' . $do['media_file'];
 							$out[$i][$key]['media_thumb'] = $filename;
-							$out[$i][$key]['media_thumb_path'] = $OBJ->baseurl . $path . '/' . $filename;
+							$out[$i][$key]['media_thumb_path'] = MEDIA_BASE . $path . '/' . $filename;
 							
 							//$out[$i][$key]['media_thumb'] = $filename;
-							//$out[$i][$key]['media_thumb_path'] = $OBJ->baseurl . GIMGS . '/' . $filename;
+							//$out[$i][$key]['media_thumb_path'] = MEDIA_BASE . GIMGS . '/' . $filename;
 							
 							$out[$i][$key]['title'] = $do['title'];
 							$out[$i][$key]['url'] = $do['url'];

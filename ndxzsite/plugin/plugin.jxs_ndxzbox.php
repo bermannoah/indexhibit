@@ -126,7 +126,7 @@ class Jxs_ndxzbox
 			
 			// picture holder
 			$a .= "<div id='pic-holder'>\n";
-			$a .= "<a href='#' onclick=\"next(); return false;\"><img src='" . $OBJ->baseurl . "/files/gimgs/" . $this->rs['id'] . "_" . $this->rs['media_file'] . "' width='$size[0]' height='$size[1]' alt='yep' /></a>";
+			$a .= "<a href='#' onclick=\"next(); return false;\"><img src='" . MEDIA_BASE . "/files/gimgs/" . $this->rs['id'] . "_" . $this->rs['media_file'] . "' width='$size[0]' height='$size[1]' alt='yep' /></a>";
 			$a .= "</div>\n";
 	
 			$a .= "</div>\n\n"; // close 'innerd'

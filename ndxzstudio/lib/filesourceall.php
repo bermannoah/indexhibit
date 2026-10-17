@@ -94,7 +94,7 @@ class FilesourceAll
 					}
 					else
 					{
-						$thumb = BASEURL . $path . '/systh-' . $img['media_ref_id'] . '_' . $img['media_thumb'];
+						$thumb = MEDIA_BASE . $path . '/systh-' . $img['media_ref_id'] . '_' . $img['media_thumb'];
 						$poster = true;
 					}
 				}
@@ -102,11 +102,11 @@ class FilesourceAll
 				{
 					if ($img['media_thumb'] == '')
 					{
-						$thumb = BASEURL . $path . '/systh-' . $img['media_ref_id'] . '_' . $img['media_file'];
+						$thumb = MEDIA_BASE . $path . '/systh-' . $img['media_ref_id'] . '_' . $img['media_file'];
 					}
 					else
 					{
-						$thumb = BASEURL . $path . '/systh-' . $img['media_ref_id'] . '_' . $img['media_thumb'];
+						$thumb = MEDIA_BASE . $path . '/systh-' . $img['media_ref_id'] . '_' . $img['media_thumb'];
 						$poster = true;
 					}
 				}
@@ -331,13 +331,13 @@ class FilesourceAll
 					//$out[$i][$key]['media_thy'] = $sizeth[1];
 					$out[$i][$key]['media_uploaded'] = $do['media_uploaded'];
 					$out[$i][$key]['media_file'] = $do['media_file']; // should not have the id appended to it
-					$out[$i][$key]['media_path'] = $OBJ->baseurl . $path . '/' . $do['media_ref_id'] . '_' . $do['media_file'];
+					$out[$i][$key]['media_path'] = MEDIA_BASE . $path . '/' . $do['media_ref_id'] . '_' . $do['media_file'];
 					$out[$i][$key]['media_thumb'] = $filename;
-					$out[$i][$key]['media_thumb_path'] = $OBJ->baseurl . $path . '/' . $filename;
+					$out[$i][$key]['media_thumb_path'] = MEDIA_BASE . $path . '/' . $filename;
 					$out[$i][$key]['media_thumb_source'] = $do['media_thumb'];
 					
 					//$out[$i][$key]['media_thumb'] = $filename;
-					//$out[$i][$key]['media_thumb_path'] = $OBJ->baseurl . GIMGS . '/' . $filename;
+					//$out[$i][$key]['media_thumb_path'] = MEDIA_BASE . GIMGS . '/' . $filename;
 					
 					$out[$i][$key]['title'] = $do['title'];
 					$out[$i][$key]['url'] = $do['url'];
@@ -369,13 +369,13 @@ class FilesourceAll
 							//$out[$i][$key]['media_thy'] = $sizeth[1];
 							$out[$i][$key]['media_uploaded'] = $do['media_uploaded'];
 							$out[$i][$key]['media_file'] = $do['media_file']; // should not have the id appended to it
-							$out[$i][$key]['media_path'] = $OBJ->baseurl . $path . '/' . $do['media_ref_id'] . '_' . $do['media_file'];
+							$out[$i][$key]['media_path'] = MEDIA_BASE . $path . '/' . $do['media_ref_id'] . '_' . $do['media_file'];
 							$out[$i][$key]['media_thumb'] = $filename;
-							$out[$i][$key]['media_thumb_path'] = $OBJ->baseurl . $path . '/' . $filename;
+							$out[$i][$key]['media_thumb_path'] = MEDIA_BASE . $path . '/' . $filename;
 							$out[$i][$key]['media_thumb_source'] = $do['media_thumb'];
 							
 							//$out[$i][$key]['media_thumb'] = 'th-' . $do['media_ref_id'] . '_' . $do['media_thumb'];
-							//$out[$i][$key]['media_thumb_path'] = $OBJ->baseurl . GIMGS . '/th-' . $do['media_ref_id'] . '_' . $do['media_thumb'];
+							//$out[$i][$key]['media_thumb_path'] = MEDIA_BASE . GIMGS . '/th-' . $do['media_ref_id'] . '_' . $do['media_thumb'];
 							$out[$i][$key]['title'] = $do['title'];
 							$out[$i][$key]['url'] = $do['url'];
 							$out[$i][$key]['link'] = $do['link'];

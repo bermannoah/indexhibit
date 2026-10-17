@@ -12,7 +12,7 @@ function gimg($file, $width='', $height='')
 	// scaling: if only a width is specfified it will not return a height
 	if ($height != '') { $height = ($height == '') ? "height='$size[1]'" : "height='$height'"; } else { $height = ''; }
 	
-	return "<img src='" . $OBJ->baseurl . GIMGS ."/$file' $width $height />";
+	return "<img src='" . MEDIA_BASE . GIMGS ."/$file' $width $height />";
 }
 
 
@@ -23,7 +23,7 @@ function mp3($file, $text='')
 	// we check if file exists first
 	if (!file_exists(DIRNAME . "/files/$file")) return;
 
-	$s = "<span class='mp3'><audio controls><source src='" . $OBJ->baseurl . "/files/$file' type='audio/mpeg'>Your browser does not support the audio element.</audio></span>";
+	$s = "<span class='mp3'><audio controls><source src='" . MEDIA_BASE . "/files/$file' type='audio/mpeg'>Your browser does not support the audio element.</audio></span>";
 	
 	return $s;
 }
@@ -48,7 +48,7 @@ function mp4($file, $width='400', $height='300', $prv_img='', $text='', $wrap='d
 	$OBJ->page->add_lib_js('jwplayer.js', 21);
 	//$OBJ->page->add_lib_js('swfobject.js', 22);
 	
-	$out = "<video id='myplayer{$rand}' class='mp4' src='" . $OBJ->baseurl . "/files/$file' width='$width' height='$height' controls></video>\n";
+	$out = "<video id='myplayer{$rand}' class='mp4' src='" . MEDIA_BASE . "/files/$file' width='$width' height='$height' controls></video>\n";
 	
 	return $out;
 }
@@ -67,9 +67,9 @@ function mov($file, $width='600', $height='400', $prv_img='', $autoplay='false',
 	
 	$no = rand(1, 99999999999);
 
-	$bgimg = ($prv_img != '') ? "'image': '$OBJ->baseurl/files/gimgs/$prv_img'," : '';
+	$bgimg = ($prv_img != '') ? "'image': '" . MEDIA_BASE . "/files/gimgs/$prv_img'," : '';
 	
-	$out = "<video id='mediaplayer-$no' class='mov' width='$width' height='$height' src='" . $OBJ->baseurl . "/files/$file' $bgimg></video>";
+	$out = "<video id='mediaplayer-$no' class='mov' width='$width' height='$height' src='" . MEDIA_BASE . "/files/$file' $bgimg></video>";
 
 	$out .= "<script type='text/javascript'>
 	  jwplayer('mediaplayer-$no').setup({
@@ -105,7 +105,7 @@ function swf($file, $width='400', $height='300', $prv_img='', $text='', $wrap='d
 	$out = ($wrap == 'div') ? "<div id=\"player-$no\" class='swf'></div>\n{$text}" : "<span id=\"player-$no\" class='swf'></span>\n{$text}";
 
 	$out .= "<script type=\"text/javascript\">\n";
-	$out .= "var so = new SWFObject('" . $OBJ->baseurl . "/files/$file', 'mymovie', '$width', '$height', '7');\n";
+	$out .= "var so = new SWFObject('" . MEDIA_BASE . "/files/$file', 'mymovie', '$width', '$height', '7');\n";
 	$out .= "so.addParam('quality', 'low');\n";
 	$out .= "so.addParam('wmode','transparent');\n";
 	$out .= "so.addParam('salign','t');\n";
@@ -142,15 +142,15 @@ function flv($file, $width='400', $height='300', $prv_img='', $text='', $wrap='d
 	$OBJ->page->add_lib_js('jwplayer.js', 21);
 	//$OBJ->page->add_lib_js('swfobject.js', 22);
 	
-	//$out = "<video id='myplayer{$no}' src='" . $OBJ->baseurl . "/files/$file' width='$width' height='$height' controls></video>\n";
+	//$out = "<video id='myplayer{$no}' src='" . MEDIA_BASE . "/files/$file' width='$width' height='$height' controls></video>\n";
 	
-	$bgimg = ($prv_img != '') ? "'image': '" . $OBJ->baseurl . GIMGS . "/$prv_img'," : '';
+	$bgimg = ($prv_img != '') ? "'image': '" . MEDIA_BASE . GIMGS . "/$prv_img'," : '';
 	
 	$out = "<div id='player-$no' class='flv'>This text will be replaced</div>
 	<script type='text/javascript'>
 	  jwplayer('player-$no').setup({
 	    'flashplayer': '" . $OBJ->baseurl . "/ndxzsite/img/player.swf',
-	    'file': '" . $OBJ->baseurl . "/files/$file',
+	    'file': '" . MEDIA_BASE . "/files/$file',
 	    'controlbar': 'over',
 		$bgimg 
 		'screencolor': '$screencolor',

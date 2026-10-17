@@ -22,7 +22,7 @@ function mp3_player()
 		{
 			$title = ($music['media_title'] != '') ? $music['media_title'] : $music['media_file'];
 			
-			$s .= "<li><a href='" . BASEURL . "/files/$music[media_file]' class='sm2_link'>$title</a></li>\n";
+			$s .= "<li><a href='" . MEDIA_BASE . "/files/$music[media_file]' class='sm2_link'>$title</a></li>\n";
 		}
 	}
 	
