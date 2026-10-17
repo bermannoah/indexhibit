@@ -106,7 +106,7 @@ Import the public repo into a new private repo (GitHub â†’ **New repository** â†
 **Import a repository**), or mirror-push:
 
 ```bash
-git clone --bare https://github.com/<upstream-org>/indexhibit.git
+git clone --bare https://github.com/bermannoah/indexhibit.git
 cd indexhibit.git
 git push --mirror git@github.com:<you>/<private-repo>.git
 ```
@@ -114,7 +114,7 @@ git push --mirror git@github.com:<you>/<private-repo>.git
 ### 2. Track upstream
 
 ```bash
-git remote add upstream https://github.com/<upstream-org>/indexhibit.git
+git remote add upstream https://github.com/bermannoah/indexhibit.git
 git fetch upstream
 git rebase upstream/main   # or: git merge upstream/main
 ```
@@ -204,7 +204,7 @@ deploy-repo/
 set -euo pipefail
 cd "$(dirname "$0")"
 
-UPSTREAM_REPO="${UPSTREAM_REPO:-https://github.com/<upstream-org>/indexhibit.git}"
+UPSTREAM_REPO="${UPSTREAM_REPO:-https://github.com/bermannoah/indexhibit.git}"
 UPSTREAM_REF="${1:-main}"
 
 workdir="$(mktemp -d)"
