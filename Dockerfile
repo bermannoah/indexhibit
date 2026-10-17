@@ -1,7 +1,9 @@
 # Indexhibit on PHP 8.5 / Apache
 FROM php:8.5-apache
 
-# Install the PHP extensions Indexhibit needs.
+# Install the PHP extensions Indexhibit needs. mbstring and curl are already
+# compiled into the official php image, so only build the extensions it
+# doesn't ship.
 RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
@@ -9,17 +11,12 @@ RUN set -eux; \
         libjpeg-dev \
         libfreetype6-dev \
         libwebp-dev \
-        libcurl4-openssl-dev \
-        libonig-dev \
-        libicu-dev \
-        unzip; \
+        libicu-dev; \
     docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp; \
     docker-php-ext-install -j"$(nproc)" \
         gd \
         mysqli \
         pdo_mysql \
-        mbstring \
-        curl \
         exif \
         intl \
         opcache; \
