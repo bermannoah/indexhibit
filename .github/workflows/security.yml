@@ -35,6 +35,18 @@ jobs:
             --output semgrep.sarif \
             .
 
+      - name: Drop nosemgrep-suppressed findings from SARIF
+        # Semgrep keeps suppressed findings in SARIF with a `suppressions`
+        # marker, but GitHub code scanning reports them as open alerts.
+        # Strip them so the Security tab matches the real result set.
+        if: always()
+        run: |
+          if [ -f semgrep.sarif ]; then
+            jq '(.runs[] | select(.results != null) | .results) |= map(select((.suppressions // []) | length == 0))' \
+              semgrep.sarif > semgrep.filtered.sarif
+            mv semgrep.filtered.sarif semgrep.sarif
+          fi
+
       - name: Upload Semgrep results
         if: always()
         uses: github/codeql-action/upload-sarif@ce5e7eeac396d720fe2d802714996c8ce561e311 # v3.39.0
