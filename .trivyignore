@@ -1,0 +1,6 @@
+# The container starts as root so Apache can bind port 80 and the entrypoint
+# can chown the mounted files/config/cache volumes. Apache worker processes
+# drop to www-data. Revisit if the app is moved to a non-privileged port and
+# volume ownership is handled at deploy time.
+DS-0002
+AVD-DS-0002
