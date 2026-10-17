@@ -102,26 +102,35 @@ For each rule, match the request URL and set the action:
 
 | Path | Action | Edge cache TTL | Notes |
 | --- | --- | --- | --- |
-| `/ndxzstudio/*` | **Bypass cache** | — | Admin/auth responses set cookies; never cache |
-| `/files/*` | **Cache** (force / override edge TTL) | `31536000` (1 year) | Uploaded media; also covers non-image uploads |
-| `/ndxzsite/css/*` | **Cache** (force / override edge TTL) | `31536000` | Theme CSS |
-| `/ndxzsite/js/*` | **Cache** (force / override edge TTL) | `31536000` | Theme JS |
-| `/ndxzsite/img/*` | **Cache** (force / override edge TTL) | `31536000` | Theme images |
-| `/ndxzsite/default/*` | **Cache** (force / override edge TTL) | `31536000` | Default theme assets |
-| `/ndxzsite/mobile/*` | **Cache** (force / override edge TTL) | `31536000` | Mobile theme assets |
+| `/ndxzstudio/*` | **Bypass Perma-Cache** | — | Admin/auth responses set cookies; never cache |
+| `/files/*` | **Override Cache Time** | `31536000` (1 year) | Uploaded media; also covers non-image uploads |
+| `/ndxzsite/css/*` | **Override Cache Time** | `31536000` | Theme CSS |
+| `/ndxzsite/js/*` | **Override Cache Time** | `31536000` | Theme JS |
+| `/ndxzsite/img/*` | **Override Cache Time** | `31536000` | Theme images |
+| `/ndxzsite/default/*` | **Override Cache Time** | `31536000` | Default theme assets |
+| `/ndxzsite/mobile/*` | **Override Cache Time** | `31536000` | Mobile theme assets |
 
 Notes:
 
-- In Bunny's UI the cache action is **Force Cache** and/or **Override Edge
-  Cache TTL**; the bypass action is **Bypass Cache**.
-- Leave HTML page URLs (`/`, `/project/…`) uncached. The app already sends
-  `Cache-Control: no-cache, must-revalidate`, so Bunny will not cache them. If
-  you want to be explicit, add a **Bypass cache** rule for them.
+- **`Bypass Perma-Cache` is not a general "don't cache".** Perma-Cache is
+  Bunny's permanent store for static files. This action only makes the matched
+  request skip that permanent copy; normal edge caching still applies. What
+  actually keeps admin dynamic, in addition to this rule, is the origin
+  `Cache-Control: no-cache, must-revalidate` that `/ndxzstudio/index.php`
+  already sends (with Bunny's "Respect Cache-Control" enabled). If your plan
+  exposes a general **Bypass Cache** / **Disable Cache** action, add that to the
+  admin rule too.
+- Enable **Perma-Cache** at the pull zone level (per file extension) if you
+  want the strongest caching for static assets. The app purges on change, so
+  long-lived / permanent caching is safe.
+- Leave HTML page URLs (`/`, `/project/…`) uncached. If you want to be
+  explicit, add a **Bypass Perma-Cache** rule for them as well.
 - Do **not** enable **Ignore Query String** on `/ndxzsite/*`: the app
   cache-busts CSS/JS with `?v=…`, and purge is per-URL.
 - The origin already sends `Cache-Control: public, max-age=31536000, immutable`
-  for static extensions, so Bunny caches those by default. The `/files/*` force
-  rule mainly ensures non-image uploads (pdf, zip, …) are cached too.
+  for static extensions, so Bunny caches those by default. The `/files/*`
+  **Override Cache Time** rule mainly ensures non-image uploads (pdf, zip, …)
+  are cached for the same long TTL.
 - A long TTL is safe because the app purges the CDN automatically:
   - per-URL on publish/unpublish/content edit and CSS save
   - whole pull zone on **Clear Site Cache** in the admin

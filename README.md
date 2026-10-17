@@ -141,11 +141,13 @@ pull zone at the Fly app origin, add your public hostname, then add edge rules:
 
 | Path | Action | Edge TTL |
 | --- | --- | --- |
-| `/ndxzstudio/*` | **Bypass cache** | — |
-| `/files/*` | **Cache** (force / override TTL) | 1 year |
-| `/ndxzsite/css/*`, `/js/*`, `/img/*`, `/default/*`, `/mobile/*` | **Cache** (force / override TTL) | 1 year |
+| `/ndxzstudio/*` | **Bypass Perma-Cache** | — |
+| `/files/*` | **Override Cache Time** | 1 year |
+| `/ndxzsite/css/*`, `/js/*`, `/img/*`, `/default/*`, `/mobile/*` | **Override Cache Time** | 1 year |
 
-HTML pages stay uncached (the app sends `Cache-Control: no-cache`). Do not
+`Bypass Perma-Cache` only opts the request out of Bunny's permanent copy of
+static files; it is not a general "don't cache". Admin stays dynamic because
+the app sends `Cache-Control: no-cache`, and HTML pages are not cached. Do not
 enable "Ignore Query String" on `/ndxzsite/*` — CSS/JS use `?v=` cache busting.
 See [docs/DEPLOY.md](docs/DEPLOY.md) for the full rule details.
 
