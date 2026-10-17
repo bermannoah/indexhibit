@@ -22,11 +22,11 @@ only.
 | `ADMIN_LNAME` | no | Initial admin last name |
 | `BUNNY_API_KEY` | no | Bunny.net API key for cache purge |
 | `BUNNY_PULL_ZONE_ID` | no | Bunny pull zone ID for purge-all |
-| `MEDIA_DRIVER` | no | `local` (default) or `bunny` |
-| `MEDIA_URL` | no | Public base for uploaded media (CDN hostname) |
-| `BUNNY_STORAGE_ZONE` | no | Bunny Storage Zone name |
-| `BUNNY_STORAGE_KEY` | no | Bunny Storage Zone password (PUT/DELETE) |
-| `BUNNY_STORAGE_ENDPOINT` | no | Default `https://storage.bunnycdn.com` |
+| `MEDIA_DRIVER` | no | `local` (default) or `bunny` (mirror uploads to a Storage Zone) |
+| `MEDIA_URL` | no | CDN hostname for uploaded media (storage-zone pull zone); empty = serve from `BASEURL` |
+| `BUNNY_STORAGE_ZONE` | no | Storage Zone name (not the pull zone) |
+| `BUNNY_STORAGE_KEY` | no | Storage Zone password (uploads/deletes); not the account API key |
+| `BUNNY_STORAGE_ENDPOINT` | no | Storage API endpoint; default `https://storage.bunnycdn.com` |
 
 The default initial login is still **`index1` / `exhibit`** (change it
 immediately after first login).
@@ -255,12 +255,28 @@ DB_USER=indexhibit
 # DB_PASS=
 # MARIADB_ROOT_PASSWORD=
 
-# Media storage (optional)
+# ---- Media storage ---------------------------------------------------------
+# local = keep uploads on the app disk and serve them from BASEURL (default)
+# bunny = also mirror uploads to a Bunny Storage Zone and serve them from
+#         MEDIA_URL; requires BUNNY_STORAGE_ZONE and BUNNY_STORAGE_KEY
 MEDIA_DRIVER=local
+
+# Public base for uploaded media. Set to the CDN hostname whose pull zone has
+# the Storage Zone as its origin (e.g. https://cdn.example.com). Leave empty to
+# serve media from BASEURL (local mode). No trailing slash.
 MEDIA_URL=
+
+# Storage Zone name (not the pull zone) and its password, used for
+# uploads/deletes. BUNNY_STORAGE_KEY is the Storage Zone password, not the
+# account API key (that is BUNNY_API_KEY, used for cache purge).
 BUNNY_STORAGE_ZONE=
 BUNNY_STORAGE_KEY=
+
+# Storage API endpoint. Leave the default unless you use a regional endpoint,
+# e.g. https://ny.storage.bunnycdn.com
 BUNNY_STORAGE_ENDPOINT=https://storage.bunnycdn.com
+
+# dimgs/ (dynamic resizes) and the page cache always stay on the local volume.
 
 # Bunny purge (optional)
 BUNNY_API_KEY=
