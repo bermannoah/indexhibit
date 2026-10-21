@@ -1,6 +1,6 @@
 # Docker / Fly.io / Bunny.net Deployment
 
-Indexhibit is containerized as a PHP 8.5 Apache app. It expects a MySQL/MariaDB
+Indexhibit is containerized as a PHP 8.5.12 Apache app. It expects a MySQL/MariaDB
 database and is designed to sit behind the Bunny.net pull CDN for static assets
 only.
 

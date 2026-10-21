@@ -12,7 +12,7 @@ This fork is hardened for modern PHP and containerized deployment behind a CDN.
 
 ## Requirements
 
-- PHP 8.5+
+- PHP 8.5.12+
 - MySQL or MariaDB
 - Apache with `mod_rewrite` (recommended) or an equivalent rewrite setup
 - PHP extensions: `mysqli`, `pdo_mysql`, `gd`, `mbstring`, `curl`, `exif`, `intl`
